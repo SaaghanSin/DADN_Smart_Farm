@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">LoginApp</string>
+    <string name="otp_verification">OTP Verification</string>
+    <string name="title_activity_maps">MapsActivity</string>
+</resources>
