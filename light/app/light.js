@@ -34,7 +34,7 @@ export default function Light() {
                         <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
                             <TouchableWithoutFeedback>
                                 <View style={{ backgroundColor: 'white', padding: 20, borderTopWidth: 3, borderTopLeftRadius: 20, borderTopRightRadius: 20, borderTopColor: '#000', borderRadius: 10, width: '100%', height: Dimensions.get('window').height / 1.5 }}>
-                                    <View style={{ backgroundColor: 'black', height: 3, width: 50 }} />
+                                    <View style={{ alignSelf: 'center', backgroundColor: 'black', height: 3, width: 50 }} />
                                     <Text style={{ textAlign: 'center', marginBottom: 10, fontWeight: 'bold', fontSize: 20 }}>Settings</Text>
                                     <ElementsButton
                                         icon = {
@@ -47,7 +47,7 @@ export default function Light() {
                                         title="Change device's name"
                                         onPress={() => {/* handle press */}}
                                         buttonStyle={{ backgroundColor: 'white' }}
-                                        titleStyle={{ color: 'black'}}
+                                        titleStyle={{ color: 'black' }}
                                     />
                                     <ElementsButton
                                         icon = {
@@ -60,8 +60,9 @@ export default function Light() {
                                         title="Remove device"
                                         onPress={() => {/* handle press */}}
                                         buttonStyle={{ backgroundColor: 'white' }}
-                                        titleStyle={{ color: 'black' }}
+                                        titleStyle={{ color: 'black', alignSelf: 'flex-start' }}
                                     />
+                                    <View style={{ height: 1, backgroundColor: 'black', marginVertical: 10 }} />
                                     <ElementsButton
                                         icon = {
                                             <Feather
@@ -73,7 +74,7 @@ export default function Light() {
                                         title="Device info"
                                         onPress={() => {/* handle press */}}
                                         buttonStyle={{ backgroundColor: 'white' }}
-                                        titleStyle={{ color: 'black' }}
+                                        titleStyle={{ color: 'black', alignSelf: 'flex-start' }}
                                     />
                                 </View>
                             </TouchableWithoutFeedback>
