@@ -4,11 +4,11 @@ import { Stack, useRouter } from "expo-router";
 import Feather from 'react-native-vector-icons/Feather';
 
 
-import Light from "./light";
-import Settings from "./setting";
-import Noti from "./notification";
-import Homepage from "./home";
-import Chart from "./chart";
+import Light from "./component/light";
+import Settings from "./component/setting";
+import Noti from "./component/notification";
+import Homepage from "./component/home";
+import Chart from "./component/chart";
 
 const Home = () => {
     const router = useRouter();

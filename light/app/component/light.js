@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, Switch, TouchableOpacity, Modal, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
@@ -8,15 +9,68 @@ import { Button as ElementsButton } from 'react-native-elements';
 
 export default function Light() {
     const [isAutomatic, setIsAutomatic] = useState(true);
+    const [lights, setLights] = useState([]);
 
+    const fetchLights = async () => {
+        try {
+            const response = await fetch(`http://192.168.1.224:3000/light/user1`);
+            const data = await response.json();
+            setLights(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchLights();
+    }, []);    
+
+    const addLight = async () => {
+        try {
+            const newDeviceId = 'L' + (lights.length + 1); // Generate new device_id
+
+            // use the get request to get all the light devices in the device table that have the type of light and have the name of the user
+            const response = await fetch(`http://192.168.1.224:3000/light/user1`);
+            const predata = await response.json();
+
+            // check if the new device_id is already existed else add the new light device to the device table that has the device name , type, and location of the light and the name of the user
+            if (predata.find(light => light.device_id === newDeviceId)) {
+                alert('Device already exists');
+                return;
+            } else {
+                const response = await fetch(`http://192.168.1.224:3000/light/user1`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        device_id: newDeviceId,
+                        device_type: 'light',
+                        device_location: 'BK',
+                    }),
+                });
+                const data = await response.json();
+                setLights([...lights, data]);
+            }
+        }
+        catch (error) {
+            console.error(error);
+        }
+        
+    };
+        
     const LightControl = ({label}) => {
         const [modalVisible, setModalVisible] = useState(false);
+        const [isLightOn, setIsLightOn] = useState(false);
     
         return (
             <View style={{ marginVertical: 10 }}>
                 <Text>{label}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Slider style={{ flex: 1 }} />
+                    <Switch 
+                        value={isLightOn}
+                        onValueChange={(value) => setIsLightOn(value)}
+                    />
                     <TouchableOpacity onPress={() => setModalVisible(true)}>
                         <AntDesign name="bars" size={20} color="#000" />
                     </TouchableOpacity>
@@ -98,11 +152,13 @@ export default function Light() {
                 />
             </View>
 
-            <LightControl label="Main light" />
-            <LightControl label="Extra light 1" />
-            <LightControl label="Extra light 2" />
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+            <ScrollView>
+                {lights.map((light, index) => (
+                    <LightControl key={light.device_id} label={`Light ${index + 1}`} />
+                ))}
+            </ScrollView>
+                
+           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
                 <ElementsButton
                     icon={
                         <AntDesign
@@ -112,6 +168,7 @@ export default function Light() {
                         />
                     }
                     title=""
+                    onPress={addLight} // Add this
                     buttonStyle={{ 
                         backgroundColor: 'white',
                         borderWidth: 1,
