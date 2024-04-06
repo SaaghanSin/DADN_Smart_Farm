@@ -8,6 +8,7 @@ export default function Chart() {
             <Button
                 title="Go to Home"
             />
+          
         </View>
     );
 };
