@@ -3,7 +3,7 @@ import { View, SafeAreaView, Text, TouchableOpacity } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import Feather from 'react-native-vector-icons/Feather';
 
-
+import Watering from './watering.js'
 import Light from "./light";
 import Settings from "./setting";
 import Noti from "./notification";
@@ -24,6 +24,8 @@ const Home = () => {
                 return <Settings />;
             case 'notification':
                 return <Noti />;
+            case 'watering':
+                return <Watering/>;
             default:
                 return <Homepage setContent={setContent} />;
         }
