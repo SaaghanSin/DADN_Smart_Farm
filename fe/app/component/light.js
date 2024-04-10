@@ -22,7 +22,7 @@ export default function Light() {
 
   const fetchLights = async () => {
     try {
-      const response = await fetch(`http://192.168.1.224:3000/light/user1`);
+      const response = await fetch(`http://localhost:3000/light/user1`);
       const data = await response.json();
       setLights(data);
     } catch (error) {
@@ -39,7 +39,7 @@ export default function Light() {
       const newDeviceId = "L" + (lights.length + 1); // Generate new device_id
 
       // use the get request to get all the light devices in the device table that have the type of light and have the name of the user
-      const response = await fetch(`http://192.168.1.224:3000/light/user1`);
+      const response = await fetch(`http://localhost:3000/light/user1`);
       const predata = await response.json();
 
       // check if the new device_id is already existed else add the new light device to the device table that has the device name , type, and location of the light and the name of the user
@@ -47,7 +47,7 @@ export default function Light() {
         alert("Device already exists");
         return;
       } else {
-        const response = await fetch(`http://192.168.1.224:3000/light/user1`, {
+        const response = await fetch(`http://localhost:3000/light/user1`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
