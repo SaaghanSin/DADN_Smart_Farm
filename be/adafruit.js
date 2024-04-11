@@ -125,7 +125,7 @@ pool
             [newRecordId, recordDate]
           );
           await pool.query(
-            "INSERT INTO lux_record (lux_record_id, lux) VALUES ($1, $2)",
+            "INSERT INTO light_record (light_record_id, lux) VALUES ($1, $2)",
             [newRecordId, lux]
           );
           console.log(`Latest lux: ${lux} at ${recordDate}`);

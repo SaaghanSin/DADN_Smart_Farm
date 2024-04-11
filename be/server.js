@@ -61,7 +61,7 @@ app.post("/activity", async (req, res) => {
     const activity_time = moment().tz("Asia/Ho_Chi_Minh").format();
     const { activity_id, acttivity_description, device_id } = req.body;
     const newActivity = await pool.query(
-      "INSERT INTO activity (activity_id, activity_time, acttivity_description, device_id) VALUES($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO activity (activity_id, activity_time, acttivity_description, device_id) VALUES ($1, $2, $3, $4) RETURNING *",
       [activity_id, activity_time, acttivity_description, device_id]
     );
     res.json(newActivity.rows[0]);

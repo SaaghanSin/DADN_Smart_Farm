@@ -9,8 +9,6 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-import { ScrollView } from "react-native";
-import Slider from "@react-native-community/slider";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
@@ -198,11 +196,9 @@ export default function Light() {
         />
       </View>
 
-      <ScrollView>
-        {lights.map((light, index) => (
-          <LightControl key={light.device_id} label={`Light ${index + 1}`} />
-        ))}
-      </ScrollView>
+      {lights.map((light, index) => (
+        <LightControl key={light.device_id} label={`Light ${index + 1}`} />
+      ))}
 
       <View
         style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
