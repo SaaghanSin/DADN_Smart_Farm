@@ -1,6 +1,16 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Switch, TextInput} from 'react-native'
 const Watering = () => {
+  const [soilMoisture, setSoilMoisture] = useState(36)
+  const [isPumping, toggleManualPump] = useState(false)
+  const [isAutomatic, togglePumpMode] = useState(false)
+  const [moistureLimit, setMoistureLimit] = useState('')
+  const GlobalState = {
+    soilMoisture, setSoilMoisture,
+    isPumping, toggleManualPump,
+    isAutomatic, togglePumpMode,
+    moistureLimit, setMoistureLimit
+  }
   return(
     <SafeAreaView style={styles.container}>
       <View style={styles.title}>
@@ -8,15 +18,17 @@ const Watering = () => {
         <Image style={styles.wateringIcon} source={require('./Asset/Images/watering-icon.png')}/>
       </View>
       <View style={styles.panelContainer}>
-        <LeftPanel/>
-        <RightPanel/>
+        <LeftPanel GlobalState={GlobalState}/>
+        <RightPanel GlobalState={GlobalState}/>
       </View>
     </SafeAreaView>
   );
 }
-const LeftPanel = () => {
-  const [soilMoisture, setSoilMoisture] = useState(36)
-  const [isPumping, toggleManualPump] = useState(false)
+const LeftPanel = ({GlobalState}) => {
+  const {
+    soilMoisture, setSoilMoisture,
+    isPumping, toggleManualPump
+  } = GlobalState;
   return(
     <View style={styles.leftPanel}>
       <View style={styles.moistureDisplay}>
@@ -46,9 +58,11 @@ const LeftPanel = () => {
     </View>
   )
 }
-const RightPanel = () => {
-  const [isAutomatic, togglePumpMode] = useState(false)
-  const [moistureLimit, setMoistureLimit] = useState('')
+const RightPanel = ({GlobalState}) => {
+  const {
+    isAutomatic, togglePumpMode, 
+    moistureLimit, setMoistureLimit
+  } = GlobalState
   return(
     <View style={styles.rightPanel}>
       <View style={styles.pumpMode}>

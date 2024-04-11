@@ -10,12 +10,15 @@ import Homepage from "./component/home";
 import Chart from "./component/chart";
 import Temperature from "./component/temperature";
 import Task from "./component/task";
+import Watering from "./component/watering.js";
 const Home = () => {
   const router = useRouter();
 
   const [content, setContent] = useState("home");
   const renderContent = () => {
     switch (content) {
+      case "watering":
+        return <Watering/>;
       case "light":
         return <Light />;
       case "chart":

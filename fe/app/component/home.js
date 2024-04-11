@@ -33,6 +33,7 @@ export default function Homepage({ setContent }) {
           width: "80%",
           borderRadius: 10,
         }}
+        onPress={() => setContent("watering")}
       >
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <Ionicons name="water-outline" size={30} color="#fff" />
