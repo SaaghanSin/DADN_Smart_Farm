@@ -54,6 +54,24 @@ app.get("/light/:name", async (req, res) => {
   }
 });
 
+//get the latest activity of the device that has the device id
+app.get("/activity/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const latestActivity = await pool.query(
+      "SELECT acttivity_description FROM activity WHERE device_id = $1 ORDER BY activity_id DESC LIMIT 1",
+      [id]
+    );
+    if (latestActivity.rows.length === 0) {
+      res.json({ acttivity_description: "OFF" });
+    } else {
+      res.json(latestActivity.rows[0]);
+    }
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 //add a new activity to the activity table that has the activity_id, activity time, activity description, and the device id
 app.post("/activity", async (req, res) => {
   try {

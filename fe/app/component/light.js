@@ -34,37 +34,51 @@ export default function Light() {
 
   const addLight = async () => {
     try {
-      const newDeviceId = "L" + (lights.length + 1); // Generate new device_id
-
-      // use the get request to get all the light devices in the device table that have the type of light and have the name of the user
-      const response = await fetch(`http://localhost:3000/light/user1`);
-      const predata = await response.json();
-
-      // check if the new device_id is already existed else add the new light device to the device table that has the device name , type, and location of the light and the name of the user
-      if (predata.find((light) => light.device_id === newDeviceId)) {
-        alert("Device already exists");
-        return;
-      } else {
-        const response = await fetch(`http://localhost:3000/light/user1`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            device_id: newDeviceId,
-            device_type: "light",
-            device_location: "BK",
-          }),
-        });
-        const data = await response.json();
-        setLights([...lights, data]);
+      // find max device_id, device_id is in the format of L1, L2, L3, ...
+      const maxDeviceId = lights.reduce((acc, light) => {
+        const deviceId = parseInt(light.device_id.slice(1));
+        return deviceId > acc ? deviceId : acc;
+      }, 0);
+      const newDeviceId = `L${maxDeviceId + 1}`;
+      const response = await fetch(`http://localhost:3000/light/user1`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          device_id: newDeviceId,
+          device_type: "light",
+          device_location: "BK",
+        }),
+      });
+      if (response.status === 200) {
+        setLights([...lights, { device_id: newDeviceId }]);
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error(error);
     }
   };
 
-  const LightControl = ({ label }) => {
+  const removeLight = async (deviceId) => {
+    if (deviceId === "L1") {
+      alert("Cannot delete the first light device");
+      return;
+    } else {
+      try {
+        const response = await fetch(`http://localhost:3000/light/${deviceId}`, {
+          method: "DELETE",
+        });
+        if (response.status === 200) {
+          setLights(lights.filter((light) => light.device_id !== deviceId));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const LightControl = ({ label, deviceId }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [isLightOn, setIsLightOn] = useState(false);
 
@@ -143,9 +157,7 @@ export default function Light() {
                       <FontAwesome name="trash-o" size={15} color="black" />
                     }
                     title="Remove device"
-                    onPress={() => {
-                      /* handle press */
-                    }}
+                    onPress={() => removeLight(deviceId)}
                     buttonStyle={{ backgroundColor: "white" }}
                     titleStyle={{ color: "black", alignSelf: "flex-start" }}
                   />
@@ -196,8 +208,8 @@ export default function Light() {
         />
       </View>
 
-      {lights.map((light, index) => (
-        <LightControl key={light.device_id} label={`Light ${index + 1}`} />
+      {lights.map((light) => (
+        <LightControl key={light.device_id} label={`Light ${light.device_id}`} deviceId={light.device_id}  />
       ))}
 
       <View
