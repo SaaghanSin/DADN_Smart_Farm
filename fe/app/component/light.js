@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
   Switch,
   TouchableOpacity,
   Modal,
@@ -10,6 +9,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import AntDesign from "react-native-vector-icons/AntDesign";
+import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { Button as ElementsButton } from "react-native-elements";
@@ -20,6 +20,7 @@ export default function Light() {
 
   const fetchLights = async () => {
     try {
+      // replace the localhost with your IP address
       const response = await fetch(`http://localhost:3000/light/user1`);
       const data = await response.json();
       setLights(data);
@@ -40,6 +41,7 @@ export default function Light() {
         return deviceId > acc ? deviceId : acc;
       }, 0);
       const newDeviceId = `L${maxDeviceId + 1}`;
+      // replace the localhost with your IP address
       const response = await fetch(`http://localhost:3000/light/user1`, {
         method: "POST",
         headers: {
@@ -66,6 +68,7 @@ export default function Light() {
       return;
     } else {
       try {
+        // replace the localhost with your IP address
         const response = await fetch(`http://localhost:3000/light/${deviceId}`, {
           method: "DELETE",
         });
@@ -78,23 +81,52 @@ export default function Light() {
     }
   };
 
+  const CustomSwitch = ({ value, onValueChange }) => {
+    return (
+      <TouchableOpacity 
+        style={{ 
+          width: 50, 
+          height: 30,
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+        onPress={onValueChange}
+      >
+        <Switch 
+          value={value}
+          onValueChange={onValueChange} 
+        />
+
+      </TouchableOpacity>
+    );
+  };
+  
   const LightControl = ({ label, deviceId }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [isLightOn, setIsLightOn] = useState(false);
-
+  
     return (
-      <View style={{ marginVertical: 10 }}>
+      <TouchableOpacity 
+        style={{ 
+          marginVertical: 10,
+          borderWidth: 1,
+          borderColor: 'black',
+          borderRadius: 10,
+          padding: 10,
+          backgroundColor: 'white',
+          width: Dimensions.get('window').width * 0.45,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+        onPress={() => setModalVisible(true)}
+      >
         <Text>{label}</Text>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Switch
-            value={isLightOn}
-            onValueChange={(value) => setIsLightOn(value)}
-          />
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <AntDesign name="bars" size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
-
+        <CustomSwitch
+          value={isLightOn}
+          onValueChange={() => setIsLightOn(!isLightOn)}
+        />
+  
         <Modal
           animationType="slide"
           transparent={true}
@@ -182,7 +214,7 @@ export default function Light() {
             </View>
           </TouchableWithoutFeedback>
         </Modal>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -208,9 +240,39 @@ export default function Light() {
         />
       </View>
 
-      {lights.map((light) => (
-        <LightControl key={light.device_id} label={`Light ${light.device_id}`} deviceId={light.device_id}  />
-      ))}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{ width: Dimensions.get('window').width * 0.5 }}>
+          {lights.sort((a, b) => a.device_id.localeCompare(b.device_id)).map((light) => (
+            <LightControl key={light.device_id} label={`Light ${light.device_id}`} deviceId={light.device_id}  />
+          ))}
+        </View>
+
+        <View 
+          style={{ 
+            width: Dimensions.get('window').width * 0.4, // adjust this as needed
+            height: 200,
+            marginVertical: 10,
+            borderWidth: 1,
+            borderColor: 'black',
+            borderRadius: 10,
+            padding: 15,
+            backgroundColor: 'white',
+          }}
+        >
+          <Text style={{ fontSize: 30 }}>1425</Text> 
+          <Text style={{ fontSize: 15 }}>LUX</Text> 
+          <Entypo 
+            name="light-up"
+            size={50} 
+            color="black"
+            style={{ 
+              position: 'absolute', 
+              bottom: 15, 
+              right: 15 
+            }}
+          />
+        </View>
+      </View>
 
       <View
         style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
