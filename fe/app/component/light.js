@@ -22,7 +22,7 @@ export default function Light() {
   const fetchLights = async () => {
     try {
       // replace the localhost with your IP address
-      const response = await fetch(`http://localhost:3000/light/user1`);
+      const response = await fetch(`http://localhost:3000/light/username1`);
       const data = await response.json();
       setLights(data);
     } catch (error) {
@@ -43,7 +43,7 @@ export default function Light() {
       }, 0);
       const newDeviceId = `L${maxDeviceId + 1}`;
       // replace the localhost with your IP address
-      const response = await fetch(`http://localhost:3000/light/user1`, {
+      const response = await fetch(`http://localhost:3000/light/username1`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -142,11 +142,11 @@ export default function Light() {
           justifyContent: 'center',
           alignItems: 'center'
         }}
-        onPress={handleSwitch}
       >
         <Switch 
           value={isOn}
           onValueChange={handleSwitch}
+          disabled={isUpdating}
         />
       </TouchableOpacity>
     );

@@ -78,19 +78,9 @@ app.post("/activity", async (req, res) => {
     const moment = require("moment-timezone");
     const activity_time = moment().tz("Asia/Ho_Chi_Minh").format();
     const {acttivity_description, device_id } = req.body;
-    // get the latest activity_id in the activity table
-    const latestActivityId = await pool.query(
-      "SELECT CAST(activity_id AS INTEGER) FROM activity ORDER BY activity_id DESC LIMIT 1"
-    );
-    let activity_id;
-    if (latestActivityId.rows.length === 0) {
-      activity_id = 1;
-    } else {
-      activity_id = parseInt(latestActivityId.rows[0].activity_id) + 1;
-    }
     const newActivity = await pool.query(
-      "INSERT INTO activity (activity_id, activity_time, acttivity_description, device_id) VALUES ($1, $2, $3, $4) RETURNING *",
-      [activity_id, activity_time, acttivity_description, device_id]
+      "INSERT INTO activity (activity_time, acttivity_description, device_id) VALUES ($1, $2, $3) RETURNING *",
+      [activity_time, acttivity_description, device_id]
     );
     res.json(newActivity.rows[0]);
   } catch (err) {

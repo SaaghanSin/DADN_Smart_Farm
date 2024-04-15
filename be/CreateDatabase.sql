@@ -45,20 +45,20 @@ CREATE TABLE light_record (
 	lux REAL NOT NULL
 );
 CREATE TABLE activity (
-	activity_id VARCHAR(50) PRIMARY KEY,
+	activity_id SERIAL PRIMARY KEY,
 	activity_time DATE NOT NULL,
 	acttivity_description VARCHAR(100),
 	device_id VARCHAR(50) NOT NULL
 );
 
 ALTER TABLE reminder
-ADD FOREIGN KEY (username) REFERENCES users(username);
+ADD FOREIGN KEY (username) REFERENCES users(user_name);
 
 ALTER TABLE configurations
-ADD FOREIGN KEY (username) REFERENCES users(username);
+ADD FOREIGN KEY (username) REFERENCES users(user_name);
 
 ALTER TABLE device
-ADD FOREIGN KEY (username) REFERENCES users(username);
+ADD FOREIGN KEY (username) REFERENCES users(user_name);
 
 ALTER TABLE record
 ADD FOREIGN KEY (device_id) REFERENCES device(device_id);
