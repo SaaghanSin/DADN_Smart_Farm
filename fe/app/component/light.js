@@ -85,7 +85,8 @@ export default function Light() {
   const CustomSwitch = ({ deviceId }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isOn, setIsOn] = useState(false);
-
+    const [isUpdating, setIsUpdating] = useState(false);
+    
     const fetchLightStatus = async () => {
       try {
         const response = await fetch(`http://localhost:3000/activity/${deviceId}`);
@@ -107,8 +108,12 @@ export default function Light() {
     if (isLoading) {
       return <ActivityIndicator />;
     }
-    
+
     const handleSwitch = async () => {
+      if (isUpdating) {
+        return;
+      }
+      setIsUpdating(true);
       try {
         const response = await fetch(`http://localhost:3000/activity`, {
           method: "POST",
@@ -125,6 +130,8 @@ export default function Light() {
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsUpdating(false);
       }
     }
     return (
