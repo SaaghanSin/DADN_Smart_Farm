@@ -13,6 +13,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { Button as ElementsButton } from "react-native-elements";
+import { ActivityIndicator } from "react-native";
 
 export default function Light() {
   const [isAutomatic, setIsAutomatic] = useState(true);
@@ -81,7 +82,51 @@ export default function Light() {
     }
   };
 
-  const CustomSwitch = ({ value, onValueChange }) => {
+  const CustomSwitch = ({ deviceId }) => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [isOn, setIsOn] = useState(false);
+
+    const fetchLightStatus = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/activity/${deviceId}`);
+        const data = await response.json();
+        setIsOn(data.acttivity_description === "ON");
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    useEffect(() => {
+      fetchLightStatus();
+      const intervalId = setInterval(fetchLightStatus, 1000); //fetch light status every seconds
+      // clean up function
+      return () => clearInterval(intervalId);
+    }, []);
+  
+    if (isLoading) {
+      return <ActivityIndicator />;
+    }
+    
+    const handleSwitch = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/activity`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            acttivity_description: isOn ? "OFF" : "ON",
+            device_id: deviceId,
+          }),
+        });
+        if (response.status === 200) {
+          setIsOn(!isOn);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
     return (
       <TouchableOpacity 
         style={{ 
@@ -90,13 +135,12 @@ export default function Light() {
           justifyContent: 'center',
           alignItems: 'center'
         }}
-        onPress={onValueChange}
+        onPress={handleSwitch}
       >
         <Switch 
-          value={value}
-          onValueChange={onValueChange} 
+          value={isOn}
+          onValueChange={handleSwitch}
         />
-
       </TouchableOpacity>
     );
   };
@@ -122,10 +166,7 @@ export default function Light() {
         onPress={() => setModalVisible(true)}
       >
         <Text>{label}</Text>
-        <CustomSwitch
-          value={isLightOn}
-          onValueChange={() => setIsLightOn(!isLightOn)}
-        />
+        <CustomSwitch deviceId={deviceId} />
   
         <Modal
           animationType="slide"
