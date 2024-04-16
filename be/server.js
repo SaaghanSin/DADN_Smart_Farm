@@ -41,6 +41,7 @@ app.get("/latest-light", (req, res) => {
   );
 });
 
+// get all light devices that have the name of the user
 app.get("/light/:name", async (req, res) => {
   try {
     const username = req.params.name;
@@ -88,7 +89,7 @@ app.post("/activity", async (req, res) => {
   }
 });
 
-//add a new light device to the device table that has the device name , type, and location of the light and the name of the user
+//add a new device to the device table that has the device name , type, and location of the light and the name of the user
 app.post("/light/:name", async (req, res) => {
   try {
     const username = req.params.name;
@@ -118,6 +119,18 @@ app.delete("/light/:id", async (req, res) => {
       [id]
     );
     res.json("Light was deleted");
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+// get latest lux data
+app.get("/lux", async (req, res) => {
+  try {
+    const latestLux = await pool.query(
+      "SELECT lux FROM light_record ORDER BY light_record_id DESC LIMIT 1"
+    );
+    res.json(latestLux.rows[0]);
   } catch (err) {
     console.error(err.message);
   }

@@ -18,6 +18,7 @@ import { ActivityIndicator } from "react-native";
 export default function Light() {
   const [isAutomatic, setIsAutomatic] = useState(true);
   const [lights, setLights] = useState([]);
+  const [lux, setLux] = useState(null);
 
   const fetchLights = async () => {
     try {
@@ -152,10 +153,26 @@ export default function Light() {
     );
   };
   
+  const fetchLux = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/lux`);
+      const data = await response.json();
+      setLux(data.lux);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLux();
+    const intervalId = setInterval(fetchLux, 1000); //fetch lux data every second
+    // clean up function
+    return () => clearInterval(intervalId);
+  }, []);
+
   const LightControl = ({ label, deviceId }) => {
     const [modalVisible, setModalVisible] = useState(false);
-    const [isLightOn, setIsLightOn] = useState(false);
-  
+
     return (
       <TouchableOpacity 
         style={{ 
@@ -307,7 +324,7 @@ export default function Light() {
             backgroundColor: 'white',
           }}
         >
-          <Text style={{ fontSize: 30 }}>1425</Text> 
+          <Text style={{ fontSize: 20 }}>{lux}</Text>
           <Text style={{ fontSize: 15 }}>LUX</Text> 
           <Entypo 
             name="light-up"

@@ -71,21 +71,14 @@ pool
           const newActivityDescription = status == 0 ? "OFF" : "ON";
           // Get the status of the led from the activity table where device_id = L1
           const latestLedActivity = await pool.query(
-            "SELECT activity_description FROM activity WHERE device_id = 'L1' ORDER BY activity_id DESC LIMIT 1"
+            "SELECT acttivity_description FROM activity WHERE device_id = 'L1' ORDER BY activity_id DESC LIMIT 1"
           );
-          const latestActivityDescription = latestLedActivity.rows[0].activity_description || "OFF"; // If no records, set it to "OFF"
+          const latestActivityDescription = latestLedActivity.rows[0].acttivity_description || "OFF"; // If no records, set it to "OFF"
 
           if (latestActivityDescription != newActivityDescription){
-            // Get the latest activity_id from the activity table
-            const latestActivity = await pool.query(
-              "SELECT MAX(activity_id) AS max_id FROM activity"
-            );
-            const latestActivityId = latestActivity.rows[0].max_id || 0; // If no records, set it to 0
-            const newActivityId = latestActivityId + 1; // Generate a new activity_id
-
             await pool.query(
-              "INSERT INTO activity (activity_id, activity_time, activity_description, device_id) VALUES ($1, $2, $3, 'L1')",
-              [newActivityId, recordDate, newActivityDescription]
+              "INSERT INTO activity (activity_time, acttivity_description, device_id) VALUES ($1, $2, 'L1')",
+              [recordDate, newActivityDescription]
             );
             console.log(`Latest led status: ${newActivityDescription} at ${recordDate}`);
           }
@@ -118,7 +111,7 @@ pool
             "SELECT MAX(record_id) AS max_id FROM record"
           );
           const latestRecordId = latestRecord.rows[0].max_id || 0; // If no records, set it to 0
-          const newRecordId = latestRecordId + 1; // Generate a new record_id
+          const newRecordId = parseInt(latestRecordId) + 1; // Generate a new record_id
 
           await pool.query(
             "INSERT INTO record (record_id, record_date, device_id) VALUES ($1, $2, 2)",
