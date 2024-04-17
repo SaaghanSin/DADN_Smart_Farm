@@ -28,20 +28,20 @@ CREATE TABLE device (
 	username VARCHAR(50)
 );	
 CREATE TABLE record (
-	record_id VARCHAR(50) PRIMARY KEY,
+	record_id INT PRIMARY KEY,
 	record_date DATE NOT NULL,
 	device_id VARCHAR(50) NOT NULL
 );
 CREATE TABLE moisture_record (
-	moisture_record_id VARCHAR(50) PRIMARY KEY,
+	moisture_record_id INT PRIMARY KEY,
 	moisture REAL NOT NULL
 );
 CREATE TABLE temperature_record (
-	temperature_record_id VARCHAR(50) PRIMARY KEY,
+	temperature_record_id INT PRIMARY KEY,
 	temperature REAL NOT NULL
 );
 CREATE TABLE light_record (
-	light_record_id VARCHAR(50) PRIMARY KEY,
+	light_record_id INT PRIMARY KEY,
 	lux REAL NOT NULL
 );
 CREATE TABLE activity (
@@ -74,3 +74,13 @@ ADD FOREIGN KEY (temperature_record_id) REFERENCES record(record_id);
 
 ALTER TABLE light_record
 ADD FOREIGN KEY (light_record_id) REFERENCES record(record_id);
+
+INSERT INTO users (user_name, hashed_password) VALUES ('username1', 'password1');
+
+INSERT INTO device (device_id, device_type, device_location, username) VALUES 
+	('1', 'temp_sensor', 'BK', 'username1'),
+	('2', 'light_sensor', 'BK', 'username1'),
+	('L1', 'light', 'BK', 'username1'),
+	('L2', 'light', 'BK', 'username1'),
+	('L3', 'light', 'BK', 'username1');
+
