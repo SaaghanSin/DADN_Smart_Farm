@@ -214,10 +214,10 @@ pool
       }
     };
 
-    // setInterval(fetchDataAndPrint, 10000);
-    // setInterval(fetchLedDataAndPrint, 1000);
-    setInterval(sendLedData, 10000);
-    // setInterval(fetchLuxDataAndPrint, 11000);
+    setInterval(fetchDataAndPrint, 10000);
+    setInterval(fetchLedDataAndPrint, 1000);
+    // setInterval(sendLedData, 10000);
+    setInterval(fetchLuxDataAndPrint, 11000);
   })
   .catch((error) => {
     console.error("Error connecting to the database:", error);
