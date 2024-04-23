@@ -167,6 +167,79 @@ app.get("/latest-temperature", (req, res) => {
   );
 });
 
+app.get("/base-limit", (req, res) => {
+  pool.query(
+    "SELECT base_limit FROM configurations WHERE area = 'Backyard'",
+    (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        if (result.rows.length === 0) {
+          res.status(404).send("No data found");
+        } else {
+          const baseLimit = result.rows[0].base_limit;
+          res.json({ base_limit: baseLimit });
+        }
+      }
+    }
+  );
+});
+
+app.get("/upper-limit", (req, res) => {
+  pool.query(
+    "SELECT upper_limit FROM configurations WHERE area = 'Backyard'",
+    (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        if (result.rows.length === 0) {
+          res.status(404).send("No data found");
+        } else {
+          const upperLimit = result.rows[0].upper_limit;
+          res.json({ upper_limit: upperLimit });
+        }
+      }
+    }
+  );
+});
+
+
+//---------------- PUT REQUEST--------------------
+
+app.put("/put-upper-limit", (req, res) => {
+  const { upperLimit } = req.body;
+  pool.query(
+    "UPDATE configurations SET upper_limit = $1 WHERE area = 'Backyard'",
+    [upperLimit],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating upper_limit:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.status(200).send("Upper limit updated successfully");
+      }
+    }
+  );
+});
+
+app.put("/put-base-limit", (req, res) => {
+  const { baseLimit } = req.body;
+  pool.query(
+    "UPDATE configurations SET base_limit = $1 WHERE area = 'Backyard'",
+    [baseLimit],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating base_limit:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.status(200).send("Upper limit updated successfully");
+      }
+    }
+  );
+});
+
 app.get("/", (req, res) => {
   res.send("Welcome to my Express application!");
 });
