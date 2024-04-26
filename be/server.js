@@ -77,8 +77,10 @@ app.get("/activity/:id", async (req, res) => {
 app.post("/activity", async (req, res) => {
   try {
     const moment = require("moment-timezone");
-    const activity_time = moment().tz("Asia/Ho_Chi_Minh").format();
     const {acttivity_description, device_id } = req.body;
+
+    const activity_time = moment().tz("Asia/Ho_Chi_Minh").format();
+    
     const newActivity = await pool.query(
       "INSERT INTO activity (activity_time, acttivity_description, device_id) VALUES ($1, $2, $3) RETURNING *",
       [activity_time, acttivity_description, device_id]
@@ -136,6 +138,16 @@ app.get("/lux", async (req, res) => {
   }
 });
 
+// get all activities from the activity table
+app.get("/activities", async (req, res) => {
+  try {
+    const allActivities = await pool.query("SELECT * FROM activity");
+    res.json(allActivities.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 app.get("/latest-temperature", (req, res) => {
   pool.query(
     "SELECT temperature FROM temperature_record ORDER BY temperature_record_id DESC LIMIT 1",
@@ -150,6 +162,79 @@ app.get("/latest-temperature", (req, res) => {
           const temperatureValue = result.rows[0].temperature;
           res.json({ temperature: temperatureValue });
         }
+      }
+    }
+  );
+});
+
+app.get("/base-limit", (req, res) => {
+  pool.query(
+    "SELECT base_limit FROM configurations WHERE area = 'Backyard'",
+    (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        if (result.rows.length === 0) {
+          res.status(404).send("No data found");
+        } else {
+          const baseLimit = result.rows[0].base_limit;
+          res.json({ base_limit: baseLimit });
+        }
+      }
+    }
+  );
+});
+
+app.get("/upper-limit", (req, res) => {
+  pool.query(
+    "SELECT upper_limit FROM configurations WHERE area = 'Backyard'",
+    (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        if (result.rows.length === 0) {
+          res.status(404).send("No data found");
+        } else {
+          const upperLimit = result.rows[0].upper_limit;
+          res.json({ upper_limit: upperLimit });
+        }
+      }
+    }
+  );
+});
+
+
+//---------------- PUT REQUEST--------------------
+
+app.put("/put-upper-limit", (req, res) => {
+  const { upperLimit } = req.body;
+  pool.query(
+    "UPDATE configurations SET upper_limit = $1 WHERE area = 'Backyard'",
+    [upperLimit],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating upper_limit:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.status(200).send("Upper limit updated successfully");
+      }
+    }
+  );
+});
+
+app.put("/put-base-limit", (req, res) => {
+  const { baseLimit } = req.body;
+  pool.query(
+    "UPDATE configurations SET base_limit = $1 WHERE area = 'Backyard'",
+    [baseLimit],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating base_limit:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.status(200).send("Upper limit updated successfully");
       }
     }
   );
