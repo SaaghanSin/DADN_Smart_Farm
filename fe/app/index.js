@@ -11,6 +11,7 @@ import Chart from "./component/chart";
 import Temperature from "./component/temperature";
 import Task from "./component/task";
 import Watering from "./component/watering.js";
+
 const Home = () => {
   const router = useRouter();
 

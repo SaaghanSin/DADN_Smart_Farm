@@ -84,3 +84,6 @@ INSERT INTO device (device_id, device_type, device_location, username) VALUES
 	('L2', 'light', 'BK', 'username1'),
 	('L3', 'light', 'BK', 'username1');
 
+INSERT INTO configurations (
+  area, receive_notification, upper_limit, base_limit, pump_mode, moisture_mode, username
+) VALUES ( 'BK', '', 60, 30, FALSE, FALSE, 'username1' )

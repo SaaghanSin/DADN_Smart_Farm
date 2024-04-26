@@ -1,15 +1,38 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Switch, TextInput} from 'react-native'
+
+const {Client} = require('pg')
+
+const client = new Client({
+  host: 'localhost',
+  database: 'dadn',
+  user: 'postgres',
+  password: 'Sus16103*',
+  port: 5432,
+})
+
+// client.connect();
+// client.query('SELECT * FROM users', (error, result) => {
+//   if (error){
+//     console.log(error.message)
+//   }else{
+//     console.log(result.rows)
+//   }
+//   client.end;
+// })
+
 const Watering = () => {
   const [soilMoisture, setSoilMoisture] = useState(36)
   const [isPumping, toggleManualPump] = useState(false)
   const [isAutomatic, togglePumpMode] = useState(false)
   const [moistureLimit, setMoistureLimit] = useState('')
+  const [baseLimit, setBaseLimit] = useState('')
   const GlobalState = {
     soilMoisture, setSoilMoisture,
     isPumping, toggleManualPump,
     isAutomatic, togglePumpMode,
-    moistureLimit, setMoistureLimit
+    moistureLimit, setMoistureLimit,
+    baseLimit, setBaseLimit,
   }
   return(
     <SafeAreaView style={styles.container}>
@@ -27,7 +50,8 @@ const Watering = () => {
 const LeftPanel = ({GlobalState}) => {
   const {
     soilMoisture, setSoilMoisture,
-    isPumping, toggleManualPump
+    isPumping, toggleManualPump,
+    isAutomatic, togglePumpMode,
   } = GlobalState;
   return(
     <View style={styles.leftPanel}>
@@ -50,6 +74,7 @@ const LeftPanel = ({GlobalState}) => {
         <Switch
           value={isPumping}
           onValueChange={() => toggleManualPump(!isPumping)}
+          disabled={isAutomatic}
           thumbColor={isPumping ? 'white' : 'black'}
           trackColor={{false: '#a95db0', true: '#5db075'}}
           style={{ transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }] }}
@@ -61,7 +86,8 @@ const LeftPanel = ({GlobalState}) => {
 const RightPanel = ({GlobalState}) => {
   const {
     isAutomatic, togglePumpMode, 
-    moistureLimit, setMoistureLimit
+    moistureLimit, setMoistureLimit,
+    baseLimit, setBaseLimit,
   } = GlobalState
   return(
     <View style={styles.rightPanel}>
@@ -75,6 +101,19 @@ const RightPanel = ({GlobalState}) => {
           style={{ transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }] }}
         />
       </View>
+      <Text>Base Limit</Text>
+      <View style={styles.userInput}>
+        <TextInput
+          value={baseLimit}
+          onChangeText={(newText) => setBaseLimit(newText)}
+          placeholder="Enter base limit"
+          keyboardType="numeric"
+          style={styles.textInput}
+          editable={isAutomatic}
+        />
+        <Text style={{fontWeight: 'bold'}}>%</Text>
+      </View>
+      <Text>Upper Limit</Text>
       <View style={styles.userInput}>
         <TextInput
           value={moistureLimit}
@@ -82,6 +121,7 @@ const RightPanel = ({GlobalState}) => {
           placeholder="Enter limit"
           keyboardType="numeric"
           style={styles.textInput}
+          editable={isAutomatic}
         />
         <Text style={{fontWeight: 'bold'}}>%</Text>
       </View>
@@ -175,5 +215,7 @@ styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
 })
+
+
 
 export default Watering;
