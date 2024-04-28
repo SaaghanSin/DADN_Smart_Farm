@@ -2,6 +2,7 @@ const axios = require("axios");
 const db_config = require("./db_config");
 const pool = db_config;
 
+
 const ADAFRUIT_IO_KEY = "aio_kTbb73aaRft4oVeofa62LY3IDxro";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
 const FEED_NAME = "temp";
@@ -144,7 +145,7 @@ pool
           
           // get the latest led status from the activity table
           const latestActivity = await pool.query(
-            "SELECT * FROM activity WHERE device_id = 'L1' ORDER BY activity_time DESC LIMIT 1"
+            "SELECT * FROM activity WHERE device_id = 'L1' ORDER BY activity_id DESC LIMIT 1"
           );
           const latestActivityDescription = latestActivity.rows[0].acttivity_description;
 
@@ -157,7 +158,7 @@ pool
           }
         } else {
           const latestActivity = await pool.query(
-            "SELECT * FROM activity WHERE device_id = 'L1' ORDER BY activity_time DESC LIMIT 1"
+            "SELECT * FROM activity WHERE device_id = 'L1' ORDER BY activity_id DESC LIMIT 1"
           );
           const latestActivityDescription = latestActivity.rows[0].acttivity_description;
           if (latestActivityDescription == "ON") {
@@ -214,10 +215,10 @@ pool
       }
     };
 
-    setInterval(fetchDataAndPrint, 10000);
-    setInterval(fetchLedDataAndPrint, 1000);
-    // setInterval(sendLedData, 10000);
-    setInterval(fetchLuxDataAndPrint, 11000);
+    // setInterval(fetchDataAndPrint, 10000);
+    // setInterval(fetchLedDataAndPrint, 1000);
+    setInterval(sendLedData, 10000);
+    // setInterval(fetchLuxDataAndPrint, 11000);
   })
   .catch((error) => {
     console.error("Error connecting to the database:", error);
