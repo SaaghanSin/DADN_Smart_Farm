@@ -1,14 +1,4 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Button,
-  Switch,
-  TouchableOpacity,
-  Modal,
-  Dimensions,
-  TouchableWithoutFeedback,
-} from "react-native";import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -38,8 +28,8 @@ export default function Temperature() {
   const fetchLimits = async () => {
     try {
       const [baseLimitResponse, upperLimitResponse] = await Promise.all([
-        axios.get("http://10.0.179.89:3000/base-limit"),
-        axios.get("http://10.0.179.89:3000/upper-limit"),
+        axios.get("http://localhost:3000/base-limit"),
+        axios.get("http://localhost:3000/upper-limit"),
       ]);
 
       const { base_limit } = baseLimitResponse.data;
@@ -80,11 +70,11 @@ export default function Temperature() {
         upperLimit <= 40
       ) {
         try {
-          await axios.put("http://10.0.179.89:3000/put-upper-limit", {
+          await axios.put("http://localhost:3000/put-upper-limit", {
             upperLimit,
           });
 
-          await axios.put("http://10.0.179.89:3000/put-base-limit", {
+          await axios.put("http://localhost:3000/put-base-limit", {
             baseLimit,
           });
 
@@ -119,11 +109,11 @@ export default function Temperature() {
         tempUpper <= 40
       ) {
         try {
-          await axios.put("http://10.0.179.89:3000/put-upper-limit", {
+          await axios.put("http://localhost:3000/put-upper-limit", {
             tempUpper,
           });
 
-          await axios.put("http://10.0.179.89:3000/put-base-limit", {
+          await axios.put("http://localhost:3000/put-base-limit", {
             tempBase,
           });
 
@@ -256,144 +246,6 @@ export default function Temperature() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-    </View>
-  );
-}
-
-import Slider from "@react-native-community/slider";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import Feather from "react-native-vector-icons/Feather";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
-import { Button as ElementsButton } from "react-native-elements";
-
-export default function Temperature() {
-  const TemperatureControl = ({ label }) => {
-    const [modalVisible, setModalVisible] = useState(false);
-
-    return (
-      <View style={{ marginVertical: 10 }}>
-        <Text>{label}</Text>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Slider style={{ flex: 1 }} />
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <AntDesign name="bars" size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "flex-end",
-                alignItems: "center",
-              }}
-            >
-              <TouchableWithoutFeedback>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 20,
-                    borderTopWidth: 3,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    borderTopColor: "#000",
-                    borderRadius: 10,
-                    width: "100%",
-                    height: Dimensions.get("window").height / 1.5,
-                  }}
-                >
-                  <View
-                    style={{
-                      alignSelf: "center",
-                      backgroundColor: "black",
-                      height: 3,
-                      width: 50,
-                    }}
-                  />
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      marginBottom: 10,
-                      fontWeight: "bold",
-                      fontSize: 20,
-                    }}
-                  >
-                    Settings
-                  </Text>
-                  <ElementsButton
-                    icon={<FontAwesome name="pencil" size={15} color="black" />}
-                    title="Change device's name"
-                    onPress={() => {
-                      /* handle press */
-                    }}
-                    buttonStyle={{ backgroundColor: "white" }}
-                    titleStyle={{ color: "black" }}
-                  />
-                  <ElementsButton
-                    icon={
-                      <FontAwesome name="trash-o" size={15} color="black" />
-                    }
-                    title="Remove device"
-                    onPress={() => {
-                      /* handle press */
-                    }}
-                    buttonStyle={{ backgroundColor: "white" }}
-                    titleStyle={{ color: "black", alignSelf: "flex-start" }}
-                  />
-                  <View
-                    style={{
-                      height: 1,
-                      backgroundColor: "black",
-                      marginVertical: 10,
-                    }}
-                  />
-                  <ElementsButton
-                    icon={<Feather name="info" size={15} color="black" />}
-                    title="Device info"
-                    onPress={() => {
-                      /* handle press */
-                    }}
-                    buttonStyle={{ backgroundColor: "white" }}
-                    titleStyle={{ color: "black", alignSelf: "flex-start" }}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
-      </View>
-    );
-  };
-
-  return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24 }}>Temperature</Text>
-
-      <TemperatureControl label="Base Limit" />
-      <TemperatureControl label="Upper limit" />
-
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
-      >
-        <ElementsButton
-          icon={<AntDesign name="plus" size={15} color="black" />}
-          title=""
-          buttonStyle={{
-            backgroundColor: "white",
-            borderWidth: 1,
-            borderColor: "black",
-          }}
-          titleStyle={{ color: "black" }}
-        />
-      </View>
     </View>
   );
 }
