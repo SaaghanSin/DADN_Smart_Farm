@@ -2,16 +2,14 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   Modal,
-  Dimensions,
   TouchableWithoutFeedback,
   TextInput,
 } from "react-native";
 import Slider from "@react-native-community/slider";
-import AntDesign from "react-native-vector-icons/AntDesign";
 import { Button as ElementsButton } from "react-native-elements";
 import axios from "axios";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Temperature() {
   const [baseLimit, setBaseLimit] = useState(15.0);
@@ -101,35 +99,38 @@ export default function Temperature() {
   const saveFormLimits = async () => {
     const tempBase = parseFloat(tempBaseLimit);
     const tempUpper = parseFloat(tempUpperLimit);
-    if (tempBase < tempUpper) {
-      if (
-        tempBase >= 15 &&
-        tempBase <= 40 &&
-        tempUpper >= 15 &&
-        tempUpper <= 40
-      ) {
-        try {
-          await axios.put("http://localhost:3000/put-upper-limit", {
-            tempUpper,
-          });
+    console.log("Parsed values:", tempBase, tempUpper);
 
-          await axios.put("http://localhost:3000/put-base-limit", {
-            tempBase,
-          });
+    if (!isNaN(tempBase) && !isNaN(tempUpper)) {
+      if (tempBase < tempUpper) {
+        if (
+          tempBase >= 15 &&
+          tempBase <= 40 &&
+          tempUpper >= 15 &&
+          tempUpper <= 40
+        ) {
+          try {
+            await axios.put("http://localhost:3000/put-form-limits", {
+              tempBase,
+              tempUpper,
+            });
 
-          console.log("Limits updated successfully");
-          setModalVisible(false);
-        } catch (error) {
-          console.error("Error updating limits:", error);
-          setErrorMessage("An error occurred while updating limits");
-          console.log(typeof tempBase);
-          console.log(typeof tempUpper);
+            console.log("Form limits updated successfully");
+            setModalVisible(false);
+          } catch (error) {
+            console.error("Error updating form limits:", error);
+            setErrorMessage("An error occurred while updating form limits");
+          }
+        } else {
+          setErrorMessage("Values must be between 15 and 40");
         }
       } else {
-        setErrorMessage("Values must be between 15 and 40");
+        setErrorMessage("Base Limit must be less than Upper Limit");
       }
     } else {
-      setErrorMessage("Base Limit must be less than Upper Limit");
+      setErrorMessage(
+        "Please enter valid numeric values for Base Limit and Upper Limit"
+      );
     }
   };
 
@@ -157,6 +158,15 @@ export default function Temperature() {
           marginBottom: 10,
           width: "100%",
         }}
+        ViewComponent={LinearGradient}
+        linearGradientProps={{
+          colors: ["#1d976c", "#93f9b9"],
+          start: { x: 0, y: 0 },
+          end: { x: 1, y: 0 },
+          style: {
+            borderRadius: 10,
+          },
+        }}
         titleStyle={{ color: "white" }}
       />
       {errorMessage ? (
@@ -167,10 +177,16 @@ export default function Temperature() {
         title="Set Limits"
         onPress={openFormModal}
         buttonStyle={{
-          backgroundColor: "black",
-          marginTop: 20,
-          marginBottom: 10,
           width: "100%",
+        }}
+        ViewComponent={LinearGradient} // Use LinearGradient as the view component
+        linearGradientProps={{
+          colors: ["black", "#1d976c"],
+          start: { x: 0, y: 0 },
+          end: { x: 1, y: 0 },
+          style: {
+            borderRadius: 10,
+          },
         }}
         titleStyle={{ color: "white" }}
       />
