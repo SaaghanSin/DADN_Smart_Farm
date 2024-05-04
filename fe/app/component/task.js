@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,44 +9,94 @@ import {
   StyleSheet,
   ScrollView,
   Switch,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import AntDesign from "react-native-vector-icons/AntDesign";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-export default function Task() {
+const Task = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [taskName, setTaskName] = useState("");
+  const [taskName, setTaskName] = useState("Water the plants");
   const [description, setDescription] = useState("");
   const [time, setTime] = useState(new Date());
   const [tasks, setTasks] = useState([]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const saveTask = () => {
-    if (!taskName.trim()) {
-      setErrorMessage("Task name is required.");
-      return;
-    }
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-    const newTask = {
-      taskName: taskName.trim(),
-      description: description.trim() || "None",
-      time: time.toLocaleTimeString(),
-      isOn: false, // New property to track task status
-    };
-    setTasks([...tasks, newTask]);
-    setTaskName("");
-    setDescription("");
-    setTime(new Date());
-    setModalVisible(false);
-    setErrorMessage("");
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/tasks");
+      if (!response.ok) {
+        throw new Error("Failed to fetch tasks");
+      }
+      const data = await response.json();
+      setTasks(
+        data.map((task) => ({
+          ...task,
+          reminder_time: task.reminder_time.slice(0, 8),
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
   };
 
-  const toggleTask = (index) => {
+  const saveTask = async () => {
+    try {
+      const formattedTime = `${time
+        .getHours()
+        .toString()
+        .padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:00`;
+
+      const response = await fetch("http://localhost:3000/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reminder_description: description.trim(),
+          reminder_time: formattedTime,
+          task_name: taskName.trim(),
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to save task");
+      }
+
+      fetchTasks();
+      setTaskName("");
+      setTime(new Date());
+      setModalVisible(false);
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error saving task:", error);
+      setErrorMessage("An error occurred while saving the task.");
+    }
+  };
+
+  const toggleTask = async (id, index) => {
     const updatedTasks = [...tasks];
-    updatedTasks[index].isOn = !updatedTasks[index].isOn;
-    setTasks(updatedTasks);
+    updatedTasks[index].on_off = !updatedTasks[index].on_off;
+    try {
+      console.log(updatedTasks);
+      const response = await fetch(`http://localhost:3000/tasks/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedTasks[index]),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update task status");
+      }
+      setTasks(updatedTasks);
+    } catch (error) {
+      console.error("Error updating task status:", error);
+    }
   };
 
   const handleConfirmTime = (selectedTime) => {
@@ -54,17 +104,62 @@ export default function Task() {
     setDatePickerVisibility(false);
   };
 
+  const deleteTask = async (taskId, index) => {
+    try {
+      const response = await fetch(`http://localhost:3000/task_del/${taskId}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete task");
+      }
+      const updatedTasks = [...tasks];
+      updatedTasks.splice(index, 1); // Remove the deleted task from the tasks list
+      setTasks(updatedTasks);
+      Alert.alert("Success", data.message);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      Alert.alert("Error", error.message);
+    }
+  };
+  const confirmDeleteTask = (taskId, index) => {
+    Alert.alert(
+      "Delete Task",
+      "Are you sure you want to delete this task?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteTask(taskId, index),
+          style: "destructive",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Tasks</Text>
 
       <ScrollView style={styles.taskList}>
         {tasks.map((task, index) => (
-          <View key={index} style={styles.taskItem}>
-            <Text style={styles.taskItemText}>{task.taskName}</Text>
-            <Text style={styles.taskItemText}>{task.description}</Text>
-            <Text style={styles.taskItemText}>{task.time}</Text>
-            <Switch value={task.isOn} onValueChange={() => toggleTask(index)} />
+          <View key={task.reminder_id} style={styles.taskItem}>
+            <Text style={styles.taskItemText}>{task.task_name}</Text>
+            <Text style={styles.taskItemText}>{task.reminder_description}</Text>
+            <Text style={styles.taskItemText}>{task.reminder_time}</Text>
+            <Switch
+              value={task.on_off}
+              onValueChange={() => toggleTask(task.reminder_id, index)}
+            />
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => confirmDeleteTask(task.reminder_id, index)}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
@@ -122,7 +217,7 @@ export default function Task() {
       </LinearGradient>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -148,7 +243,7 @@ const styles = StyleSheet.create({
   },
   taskItemText: {
     fontSize: 16,
-    flex: 1, // Allow text to take up space, adjusting to switch
+    flex: 1,
   },
   addButton: {
     padding: 15,
@@ -205,3 +300,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+export default Task;

@@ -79,10 +79,10 @@ app.get("/activity/:id", async (req, res) => {
 app.post("/activity", async (req, res) => {
   try {
     const moment = require("moment-timezone");
-    const {acttivity_description, device_id } = req.body;
+    const { acttivity_description, device_id } = req.body;
 
     const activity_time = moment().tz("Asia/Ho_Chi_Minh").format();
-    
+
     const newActivity = await pool.query(
       "INSERT INTO activity (activity_time, acttivity_description, device_id) VALUES ($1, $2, $3) RETURNING *",
       [activity_time, acttivity_description, device_id]
@@ -224,7 +224,158 @@ app.get("/latest-moisture", (request, response) => {
     }
   )
 })
+app.get("/temperature/current-month", async (req, res) => {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
 
+  try {
+    const query = `
+      SELECT EXTRACT(DAY FROM record.record_date) AS day, temperature
+      FROM temperature_record
+      JOIN record ON temperature_record.temperature_record_id = record.record_id
+      WHERE EXTRACT(MONTH FROM record.record_date) = $1
+        AND EXTRACT(YEAR FROM record.record_date) = $2
+    `;
+    const result = await pool.query(query, [currentMonth, currentYear]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/temperature/current-year", async (req, res) => {
+  const currentYear = new Date().getFullYear();
+
+  try {
+    const query = `
+      SELECT EXTRACT(MONTH FROM record.record_date) AS month, AVG(temperature) AS average_temperature
+      FROM temperature_record
+      JOIN record ON temperature_record.temperature_record_id = record.record_id
+      WHERE EXTRACT(YEAR FROM record.record_date) = $1
+      GROUP BY EXTRACT(MONTH FROM record.record_date)
+    `;
+    const result = await pool.query(query, [currentYear]);
+
+    // Convert result to format expected by the frontend
+    const formattedData = result.rows.map((row) => ({
+      month: row.month,
+      average_temperature: row.average_temperature,
+    }));
+
+    res.json(formattedData);
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/lights/current-month", async (req, res) => {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+
+  try {
+    const query = `
+    SELECT EXTRACT(DAY FROM record.record_date) AS day, lux
+    FROM light_record
+    JOIN record ON light_record.light_record_id = record.record_id
+    WHERE EXTRACT(MONTH FROM record.record_date) = $1
+      AND EXTRACT(YEAR FROM record.record_date) = $2
+    `;
+    const result = await pool.query(query, [currentMonth, currentYear]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/lights/current-year", async (req, res) => {
+  const currentYear = new Date().getFullYear();
+
+  try {
+    const query = `
+      SELECT EXTRACT(MONTH FROM record.record_date) AS month, AVG(lux) AS average_light
+      FROM light_record
+      JOIN record ON light_record.light_record_id = record.record_id
+      WHERE EXTRACT(YEAR FROM record.record_date) = $1
+      GROUP BY EXTRACT(MONTH FROM record.record_date)
+    `;
+    const result = await pool.query(query, [currentYear]);
+    const formattedData = result.rows.map((row) => ({
+      month: row.month,
+      average_light: row.average_light,
+    }));
+
+    res.json(formattedData);
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/moisture/current-month", async (req, res) => {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+
+  try {
+    const query = `
+      SELECT EXTRACT(DAY FROM record.record_date) AS day, moisture
+      FROM moisture_record
+      JOIN record ON moisture_record.moisture_record_id = record.record_id
+      WHERE EXTRACT(MONTH FROM record.record_date) = $1
+        AND EXTRACT(YEAR FROM record.record_date) = $2
+    `;
+    const result = await pool.query(query, [currentMonth, currentYear]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/moisture/current-year", async (req, res) => {
+  const currentYear = new Date().getFullYear();
+
+  try {
+    const query = `
+      SELECT EXTRACT(MONTH FROM record.record_date) AS month, AVG(moisture) AS average_moisture
+      FROM moisture_record
+      JOIN record ON moisture_record.moisture_record_id = record.record_id
+      WHERE EXTRACT(YEAR FROM record.record_date) = $1
+      GROUP BY EXTRACT(MONTH FROM record.record_date)
+    `;
+    const result = await pool.query(query, [currentYear]);
+
+    // Convert result to format expected by the frontend
+    const formattedData = result.rows.map((row) => ({
+      month: row.month,
+      average_moisture: row.average_moisture,
+    }));
+
+    res.json(formattedData);
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/tasks", (req, res) => {
+  pool.query(
+    "SELECT task_name, reminder_id, reminder_description, reminder_time, on_off FROM reminder",
+    (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.json(result.rows);
+      }
+    }
+  );
+});
 //---------------- PUT REQUEST--------------------
 
 app.put("/put-upper-limit", (req, res) => {
@@ -258,7 +409,74 @@ app.put("/put-base-limit", (req, res) => {
     }
   );
 });
+app.put("/put-form-limits", (req, res) => {
+  const { tempBase, tempUpper } = req.body;
+  // Assuming you're using a database connection pool named 'pool'
+  pool.query(
+    "UPDATE configurations SET base_limit = $1, upper_limit = $2 WHERE area = 'Backyard'",
+    [tempBase, tempUpper],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating form limits:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.status(200).send("Form limits updated successfully");
+      }
+    }
+  );
+});
 
+app.post("/tasks", (req, res) => {
+  const { reminder_description, reminder_time, on_off, task_name } = req.body;
+  pool.query(
+    "INSERT INTO reminder (reminder_description, reminder_time, on_off, task_name) VALUES ($1, $2, $3, $4)",
+    [reminder_description, reminder_time, on_off, task_name],
+    (err) => {
+      if (err) {
+        console.error("Error inserting task:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.status(201).send("Task created successfully");
+      }
+    }
+  );
+});
+
+app.put("/tasks/:id", (req, res) => {
+  const id = req.params.id;
+  const { reminder_description, reminder_time, on_off } = req.body;
+  pool.query(
+    "UPDATE reminder SET reminder_description = $1, reminder_time = $2, on_off = $3 WHERE reminder_id = $4",
+    [reminder_description, reminder_time, on_off, id],
+    (err) => {
+      if (err) {
+        console.error("Error updating task:", err.message);
+        res.status(500).send("Internal server error");
+      } else {
+        res.status(200).send("Task updated successfully");
+      }
+    }
+  );
+});
+
+app.delete("/task_del/:id", async (req, res) => {
+  const taskId = req.params.id;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM reminder WHERE reminder_id = $1",
+      [taskId]
+    );
+    if (result.rowCount === 1) {
+      res.status(200).json({ message: "Task deleted successfully" });
+    } else {
+      res.status(404).json({ message: "Task not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 app.get("/", (req, res) => {
   res.send("Welcome to my Express application!");
 });
