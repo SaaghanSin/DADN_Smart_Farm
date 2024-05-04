@@ -18,6 +18,8 @@ CREATE TABLE configurations (
 	base_limit REAL NOT NULL,
 	pump_mode BOOLEAN NOT NULL DEFAULT FALSE,
 	moisture_mode BOOLEAN NOT NULL DEFAULT FALSE,
+  moisture_base_limit REAL NOT NULL,
+  moisture_upper_limit REAL NOT NULL,
 	username VARCHAR(50) NOT NULL
 );
 
@@ -82,8 +84,5 @@ INSERT INTO device (device_id, device_type, device_location, username) VALUES
 	('2', 'light_sensor', 'BK', 'username1'),
 	('L1', 'light', 'BK', 'username1'),
 	('L2', 'light', 'BK', 'username1'),
-	('L3', 'light', 'BK', 'username1');
-
-INSERT INTO configurations (
-  area, receive_notification, upper_limit, base_limit, pump_mode, moisture_mode, username
-) VALUES ( 'BK', '', 60, 30, FALSE, FALSE, 'username1' )
+	('L3', 'light', 'BK', 'username1'),
+  ('M1', 'moisture', 'BK', 'username1');

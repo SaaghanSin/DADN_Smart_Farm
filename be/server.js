@@ -1,3 +1,5 @@
+import console from "../LogApp/.expo/metro/externals/console/index.js";
+
 const express = require("express");
 const cors = require("cors");
 const db_config = require("./db_config");
@@ -205,6 +207,23 @@ app.get("/upper-limit", (req, res) => {
   );
 });
 
+app.get("/latest-moisture", (request, response) => {
+  pool.query(
+    "SELECT moisture FROM moisture_record ORDER BY moisture_record_id DESC LIMIT 1",
+    (error, result) => {
+      if (error) {
+        console.erro("Error executing query:", err.message);
+        response.status(500).send("Internal server error");
+      } else {
+        if (result.rows.length === 0){
+          response.status(400).send("No data found");
+        } else {
+          response.json(rows[0])
+        }
+      }
+    }
+  )
+})
 
 //---------------- PUT REQUEST--------------------
 

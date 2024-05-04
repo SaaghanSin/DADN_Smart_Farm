@@ -1,25 +1,5 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Switch, TextInput} from 'react-native'
-
-const {Client} = require('pg')
-
-const client = new Client({
-  host: 'localhost',
-  database: 'dadn',
-  user: 'postgres',
-  password: 'Sus16103*',
-  port: 5432,
-})
-
-// client.connect();
-// client.query('SELECT * FROM users', (error, result) => {
-//   if (error){
-//     console.log(error.message)
-//   }else{
-//     console.log(result.rows)
-//   }
-//   client.end;
-// })
 
 const Watering = () => {
   const [soilMoisture, setSoilMoisture] = useState(36)
@@ -27,6 +7,22 @@ const Watering = () => {
   const [isAutomatic, togglePumpMode] = useState(false)
   const [moistureLimit, setMoistureLimit] = useState('')
   const [baseLimit, setBaseLimit] = useState('')
+
+  const fetchMoisture = async () => {
+    try{
+      const response = await fetch('http://localhost:3000/latest-moisture');
+      const data = await response.json();
+      setSoilMoisture(data["moisture"]);
+    } catch(error){
+      console.error(error);
+    }
+  }
+  useEffect(() => {
+    fetchMoisture();
+    const intervalId = setInterval(fetchMoisture, 1000);
+    return () => clearInterval(intervalId);
+  })
+
   const GlobalState = {
     soilMoisture, setSoilMoisture,
     isPumping, toggleManualPump,
@@ -118,7 +114,7 @@ const RightPanel = ({GlobalState}) => {
         <TextInput
           value={moistureLimit}
           onChangeText={(newText) => setMoistureLimit(newText)}
-          placeholder="Enter limit"
+          placeholder="Enter upper limit"
           keyboardType="numeric"
           style={styles.textInput}
           editable={isAutomatic}
