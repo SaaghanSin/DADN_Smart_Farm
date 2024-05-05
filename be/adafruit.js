@@ -2,7 +2,6 @@ const axios = require("axios");
 const db_config = require("./db_config");
 const pool = db_config;
 
-
 const ADAFRUIT_IO_KEY = "aio_kTbb73aaRft4oVeofa62LY3IDxro";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
 const FEED_NAME = "temp";
@@ -88,6 +87,10 @@ pool
       } catch (error) {
         console.error("Error:", error);
       }
+      setTimeout(function() {
+        sendLedData();
+        setTimeout(fetchLedDataAndPrint, 2000);
+      }, 2000);
     };
 
     const setLatestLedId = async () => {
@@ -216,8 +219,7 @@ pool
     };
 
     // setInterval(fetchDataAndPrint, 10000);
-    // setInterval(fetchLedDataAndPrint, 1000);
-    setInterval(sendLedData, 10000);
+    fetchLedDataAndPrint();
     // setInterval(fetchLuxDataAndPrint, 11000);
   })
   .catch((error) => {
