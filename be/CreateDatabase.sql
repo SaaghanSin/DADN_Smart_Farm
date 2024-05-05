@@ -4,13 +4,30 @@ CREATE TABLE users (
     hashed_password VARCHAR(50) UNIQUE NOT NULL
 );
 
+CREATE SEQUENCE reminder_id_sequence;
+
 CREATE TABLE reminder (
-	reminder_id VARCHAR(50) PRIMARY KEY,
-	reminder_description TEXT,
-	reminder_time DATE,
-	on_off BOOLEAN NOT NULL DEFAULT FALSE,
-	username VARCHAR(50) NOT NULL
+    reminder_id VARCHAR(50) PRIMARY KEY DEFAULT 'R' || nextval('reminder_id_sequence'),
+    task_name VARCHAR(50) NOT NULL,
+    reminder_description TEXT,
+    reminder_time TIME,
+    on_off BOOLEAN NOT NULL DEFAULT FALSE,
+    username VARCHAR(50) /*NOT NULL*/
 );
+
+CREATE OR REPLACE FUNCTION set_reminder_id()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.reminder_id := 'R' || nextval('reminder_id_sequence');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_reminder_id_trigger
+BEFORE INSERT ON reminder
+FOR EACH ROW
+EXECUTE FUNCTION set_reminder_id();
+
 CREATE TABLE configurations (
 	area VARCHAR(50) PRIMARY KEY,
 	receive_notification TEXT,
