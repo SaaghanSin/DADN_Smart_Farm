@@ -14,6 +14,23 @@ const Watering = () => {
       const response = await fetch('http://localhost:3000/latest-moisture');
       const data = await response.json();
       setSoilMoisture(data["moisture"]);
+      if (moistureLimit == '' && baseLimit == ''){
+        return;
+      }
+      if (!isAutomatic){
+        return;
+      }
+      if (baseLimit <= soilMoisture && soilMoisture <= moistureLimit){
+        if(isPumping){
+          toggleManualPump(false)
+          putPumpMode()
+        }
+      }else{
+        if (!isPumping){
+          toggleManualPump(true)
+          putPumpMode()
+        }
+      }
     } catch(error){
       console.error(error);
     }
