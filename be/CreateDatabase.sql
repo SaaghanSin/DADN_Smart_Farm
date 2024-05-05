@@ -18,8 +18,8 @@ CREATE TABLE configurations (
 	base_limit REAL NOT NULL,
 	pump_mode BOOLEAN NOT NULL DEFAULT FALSE,
 	moisture_mode BOOLEAN NOT NULL DEFAULT FALSE,
-  moisture_base_limit REAL NOT NULL,
-  moisture_upper_limit REAL NOT NULL,
+  moisture_base_limit REAL,
+  moisture_upper_limit REAL,
 	username VARCHAR(50) NOT NULL
 );
 

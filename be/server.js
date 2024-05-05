@@ -212,18 +212,36 @@ app.get("/latest-moisture", (request, response) => {
     "SELECT moisture FROM moisture_record ORDER BY moisture_record_id DESC LIMIT 1",
     (error, result) => {
       if (error) {
-        console.erro("Error executing query:", err.message);
+        console.error("Error executing query:", error.message);
         response.status(500).send("Internal server error");
       } else {
         if (result.rows.length === 0){
           response.status(400).send("No data found");
         } else {
-          response.json(rows[0])
+          response.json(result.rows[0])
+        }
+      }
+    }
+  )
+});
+
+app.get("/moisture-configuration", (request, response) => {
+  pool.query(
+    "SELECT pump_mode, moisture_mode, moisture_base_limit, moisture_upper_limit FROM configurations WHERE area = 'Backyard'",
+    (error, result) => {
+      if (error){
+        console.error("Error executing query:", error.message)
+      } else {
+        if (result.rows.length === 0){
+          response.status(400).send("No data found");
+        } else {
+          response.json(result.rows[0])
         }
       }
     }
   )
 })
+
 app.get("/temperature/current-month", async (req, res) => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
@@ -409,6 +427,51 @@ app.put("/put-base-limit", (req, res) => {
     }
   );
 });
+
+app.put("/put-moisture-limit", (request, response) => {
+  const {baseLimit, moistureLimit} = request.body;
+  pool.query(
+    "Update configurations SET moisture_base_limit = $1, moisture_upper_limit = $2 WHERE area = 'Backyard'",
+    [baseLimit, moistureLimit],
+    (error, result) => {
+      if (error) {
+        console.error("Error updating moisture range:", error.message)
+        response.status(500).send("Internal server error");
+      } else {
+        response.status(200).send("Moisture range updated successfully");
+      }
+    }
+  )
+})
+
+app.put("/put-pump-mode", (request, response) => {
+  const {isPumping} = request.body;
+  pool.query(
+    "UPDATE configurations SET pump_mode = $1 WHERE area = 'Backyard'",
+    [isPumping],
+    (error, result) => {
+      if (error) {
+        console.error("Error toggling pump mode:", error.message);
+        response.status(500).send("Internal server error");
+      } 
+    }
+  )
+})
+
+app.put("/put-moisture-mode", (request, response) => {
+  const {isAutomatic} = request.body;
+  pool.query(
+    "UPDATE configurations SET moisture_mode = $1 WHERE area = 'Backyard'",
+    [isAutomatic],
+    (error, result) => {
+      if (error) {
+        console.error("Error toggling moisture mode", error.message);
+        response.status(500).send("Internal server error");
+      }
+    }
+  )
+})
+
 app.put("/put-form-limits", (req, res) => {
   const { tempBase, tempUpper } = req.body;
   // Assuming you're using a database connection pool named 'pool'

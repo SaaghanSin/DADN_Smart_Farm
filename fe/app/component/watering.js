@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Switch, TextInput} from 'react-native'
+import console from '../../.expo/metro/externals/console/index.js';
 
 const Watering = () => {
   const [soilMoisture, setSoilMoisture] = useState(36)
@@ -17,10 +18,61 @@ const Watering = () => {
       console.error(error);
     }
   }
+  const fetchConfiguration = async () => {
+    try{
+      const response = await fetch('http://localhost:3000/moisture-configuration');
+      const data = await response.json();
+      toggleManualPump(data['pump_mode']);
+      togglePumpMode(data['moisture_mode']);
+      if (data['moisture_base_limit']){
+        setBaseLimit(data['moisture_base_limit']);
+      }
+      if (data['moisture_upper_limit']) {
+        setMoistureLimit(data['moisture_upper_limit']);
+      }
+    } catch(error){
+      console.error(error);
+    }
+  }
+
+  const putMoistureLimit = async () => {
+    if (!(baseLimit < moistureLimit)){
+      return;
+    }
+    try {
+      await axois.put("http://localhost:3000/put-moisture-limit", {
+        baseLimit, moistureLimit,
+      });
+    } catch (error) {
+      console.error("Error updating moisture range:", error)
+    }
+  };
+  const putPumpMode = async () => {
+    try {
+      await axois.put("http://localhost:3000/put-pump-mode", {
+        isPumping,
+      })
+    } catch(error){
+      console.log("Error toggling pump mode", error);
+    }
+  }
+  const putMoistureMode = async () => {
+    try {
+      await axois.put("http://localhost:3000/put-moisture-mode", {
+        isAutomatic,
+      })
+    } catch (error) {
+      console.log("Error toggling moisture mode", error);
+    }
+  }
+
   useEffect(() => {
     fetchMoisture();
     const intervalId = setInterval(fetchMoisture, 1000);
     return () => clearInterval(intervalId);
+  })
+  useEffect(() => {
+    fetchConfiguration();
   })
 
   const GlobalState = {
@@ -29,6 +81,9 @@ const Watering = () => {
     isAutomatic, togglePumpMode,
     moistureLimit, setMoistureLimit,
     baseLimit, setBaseLimit,
+    putMoistureLimit,
+    putPumpMode,
+    putMoistureMode,
   }
   return(
     <SafeAreaView style={styles.container}>
@@ -48,6 +103,7 @@ const LeftPanel = ({GlobalState}) => {
     soilMoisture, setSoilMoisture,
     isPumping, toggleManualPump,
     isAutomatic, togglePumpMode,
+    putPumpMode,
   } = GlobalState;
   return(
     <View style={styles.leftPanel}>
@@ -69,7 +125,10 @@ const LeftPanel = ({GlobalState}) => {
         <Text style={{fontSize: 20}}>Pump</Text>
         <Switch
           value={isPumping}
-          onValueChange={() => toggleManualPump(!isPumping)}
+          onValueChange={() => {
+            toggleManualPump(!isPumping)
+            putPumpMode();
+          }}
           disabled={isAutomatic}
           thumbColor={isPumping ? 'white' : 'black'}
           trackColor={{false: '#a95db0', true: '#5db075'}}
@@ -84,6 +143,8 @@ const RightPanel = ({GlobalState}) => {
     isAutomatic, togglePumpMode, 
     moistureLimit, setMoistureLimit,
     baseLimit, setBaseLimit,
+    putMoistureLimit,
+    putMoistureMode,
   } = GlobalState
   return(
     <View style={styles.rightPanel}>
@@ -91,7 +152,10 @@ const RightPanel = ({GlobalState}) => {
         <Text style={{fontSize: 20}}>{isAutomatic ? 'Automatic' : 'Manual'}</Text>
         <Switch
           value={isAutomatic}
-          onValueChange={() => togglePumpMode(!isAutomatic)}
+          onValueChange={() => {
+            togglePumpMode(!isAutomatic)
+            putMoistureMode();
+          }}
           thumbColor={isAutomatic ? 'white' : 'black'}
           trackColor={{false: '#a95db0', true: '#5db075'}}
           style={{ transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }] }}
@@ -121,7 +185,10 @@ const RightPanel = ({GlobalState}) => {
         />
         <Text style={{fontWeight: 'bold'}}>%</Text>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={putMoistureLimit}
+      >
         <Text style={{color: 'white'}}>
           Confirm
         </Text>
