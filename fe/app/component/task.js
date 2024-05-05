@@ -10,9 +10,12 @@ import {
   ScrollView,
   Switch,
   Alert,
+  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { FontAwesome } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
 
 const Task = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -29,7 +32,7 @@ const Task = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch("http://localhost:3000/tasks");
+      const response = await fetch("http://192.168.0.3:3000/tasks");
       if (!response.ok) {
         throw new Error("Failed to fetch tasks");
       }
@@ -47,12 +50,16 @@ const Task = () => {
 
   const saveTask = async () => {
     try {
+      if (!taskName.trim()) {
+        throw new Error("Task name cannot be empty");
+      }
+
       const formattedTime = `${time
         .getHours()
         .toString()
         .padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:00`;
 
-      const response = await fetch("http://localhost:3000/tasks", {
+      const response = await fetch("http://192.168.0.3:3000/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,6 +68,7 @@ const Task = () => {
           reminder_description: description.trim(),
           reminder_time: formattedTime,
           task_name: taskName.trim(),
+          on_off: true,
         }),
       });
       if (!response.ok) {
@@ -72,18 +80,37 @@ const Task = () => {
       setTime(new Date());
       setModalVisible(false);
       setErrorMessage("");
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Task Reminder",
+          body: `Don't forget to ${taskName}`,
+        },
+        trigger: {
+          hour: time.getHours(),
+          minute: time.getMinutes(),
+          repeats: false,
+        },
+      });
+
+      console.log("Scheduled notification ID:", notificationId);
     } catch (error) {
       console.error("Error saving task:", error);
-      setErrorMessage("An error occurred while saving the task.");
+      setErrorMessage(error.message);
     }
   };
-
+  useEffect(() => {
+    Notifications.requestPermissionsAsync().then((statusObj) => {
+      if (statusObj.status !== "granted") {
+        alert("Permission to receive notifications was denied!");
+      }
+    });
+  }, []);
   const toggleTask = async (id, index) => {
     const updatedTasks = [...tasks];
     updatedTasks[index].on_off = !updatedTasks[index].on_off;
     try {
       console.log(updatedTasks);
-      const response = await fetch(`http://localhost:3000/tasks/${id}`, {
+      const response = await fetch(`http://192.168.0.3:3000/tasks/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -106,15 +133,19 @@ const Task = () => {
 
   const deleteTask = async (taskId, index) => {
     try {
-      const response = await fetch(`http://localhost:3000/task_del/${taskId}`, {
-        method: "DELETE",
+      const response = await fetch("http://192.168.0.3:3000/deleteTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ taskId }), // Send task ID in the request body
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Failed to delete task");
+        throw new Error(data.error || "Failed to delete task");
       }
       const updatedTasks = [...tasks];
-      updatedTasks.splice(index, 1); // Remove the deleted task from the tasks list
+      updatedTasks.splice(index, 1);
       setTasks(updatedTasks);
       Alert.alert("Success", data.message);
     } catch (error) {
@@ -122,24 +153,7 @@ const Task = () => {
       Alert.alert("Error", error.message);
     }
   };
-  const confirmDeleteTask = (taskId, index) => {
-    Alert.alert(
-      "Delete Task",
-      "Are you sure you want to delete this task?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => deleteTask(taskId, index),
-          style: "destructive",
-        },
-      ],
-      { cancelable: false }
-    );
-  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Tasks</Text>
@@ -156,9 +170,14 @@ const Task = () => {
             />
             <TouchableOpacity
               style={styles.deleteButton}
-              onPress={() => confirmDeleteTask(task.reminder_id, index)}
+              onPress={() => deleteTask(task.reminder_id, index)}
             >
-              <Text style={styles.deleteButtonText}>Delete</Text>
+              <FontAwesome
+                name="trash"
+                size={24}
+                color="black"
+                marginLeft="5px"
+              />
             </TouchableOpacity>
           </View>
         ))}
@@ -210,9 +229,19 @@ const Task = () => {
         onCancel={() => setDatePickerVisibility(false)}
       />
 
-      <LinearGradient colors={["#4CAF50", "#2E7D32"]} style={styles.addButton}>
+      <LinearGradient
+        colors={["#1d976c", "#93f9b9"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.addButton}
+      >
         <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text style={styles.addButtonText}>Make Task</Text>
+          <View style={styles.buttonContent}>
+            <FontAwesome name="calendar" size={30} color="#fff" />
+            <Text style={[styles.addButtonText, { marginLeft: 20 }]}>
+              Make Task
+            </Text>
+          </View>
         </TouchableOpacity>
       </LinearGradient>
     </View>
@@ -238,8 +267,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
     paddingVertical: 10,
-    flexDirection: "row", // To align the switch horizontally
-    justifyContent: "space-between", // To push the switch to the end
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   taskItemText: {
     fontSize: 16,
@@ -298,6 +327,10 @@ const styles = StyleSheet.create({
   errorMessage: {
     color: "red",
     marginBottom: 10,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 

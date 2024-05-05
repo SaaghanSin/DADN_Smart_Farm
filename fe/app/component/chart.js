@@ -21,7 +21,7 @@ const Chart = () => {
 
   const fetchTemperatureData = async (type) => {
     try {
-      let url = "http://localhost:3000/temperature";
+      let url = "http://192.168.0.3:3000/temperature";
       if (type === "month") {
         url += "/current-month";
       } else if (type === "year") {
@@ -47,7 +47,7 @@ const Chart = () => {
 
   const fetchLightData = async (type) => {
     try {
-      let url = "http://localhost:3000/lights";
+      let url = "http://192.168.0.3:3000/lights";
       if (type === "month") {
         url += "/current-month";
       } else if (type === "year") {
@@ -69,7 +69,7 @@ const Chart = () => {
 
   const fetchMoistureData = async (type) => {
     try {
-      let url = "http://localhost:3000/moisture";
+      let url = "http://192.168.0.3:3000/moisture";
       if (type === "month") {
         url += "/current-month";
       } else if (type === "year") {
