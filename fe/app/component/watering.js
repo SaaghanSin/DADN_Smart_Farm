@@ -20,14 +20,19 @@ const Watering = () => {
       if (!isAutomatic){
         return;
       }
-      if (baseLimit <= soilMoisture && soilMoisture <= moistureLimit){
-        if(isPumping){
-          toggleManualPump(false)
+      if (soilMoisture < baseLimit){
+        if (!isPumping){
+          togglePumpMode(true)
           putPumpMode()
         }
-      }else{
-        if (!isPumping){
-          toggleManualPump(true)
+      } else if (baseLimit <= soilMoisture && soilMoisture <= moistureLimit){
+        if (isPumping){
+          togglePumpMode(false)
+          putPumpMode()
+        }
+      } else if (moistureLimit < soilMoisture){
+        if (isPumping){
+          togglePumpMode(false)
           putPumpMode()
         }
       }
