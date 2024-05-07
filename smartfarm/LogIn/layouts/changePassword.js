@@ -41,7 +41,7 @@ export default function ChangePassword({route}) {
         } else {
 
           try {
-            const response = await fetch('http://192.168.1.38:3000/change', {
+            const response = await fetch('http://10.229.86.82:3000/change', {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',

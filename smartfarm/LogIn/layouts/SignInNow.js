@@ -18,7 +18,7 @@ export default function SignInNow() {
       setIsError('Wrong OTP code !!!');
     } else {
       setIsError(false);
-      onPress.navigate('blankspace');
+      onPress.navigate('Homepage');
     }
   }
 
@@ -95,7 +95,7 @@ export default function SignInNow() {
   const [randomOtpcode, setRandomOtpcode] = useState(null);
   
   useEffect(() => {
-    fetch('http://192.168.1.38:3000/datas')
+    fetch('http://10.229.86.82:3000/datas')
       .then(response => response.json())
       .then(json => {
         const otpcodes = json.otpcode;

@@ -90,7 +90,7 @@ export default function OTPPhone({route}) {
   const [randomOtpcode, setRandomOtpcode] = useState(null);
   
   useEffect(() => {
-    fetch('http://192.168.1.38:3000/datas')
+    fetch('http://10.229.86.82:3000/datas')
       .then(response => response.json())
       .then(json => {
         const otpcodes = json.otpcode;

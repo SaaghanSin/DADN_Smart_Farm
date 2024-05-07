@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View,TouchableOpacity, TextInput, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useFocusEffect } from '@react-navigation/native';
 import * as React from 'react';
 import {useState, useEffect} from 'react';
 
@@ -8,7 +8,7 @@ export default function SignIn() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch('http://192.168.1.38:3000/datas')
+    fetch('http://172.16.171.85:3000/datas')
       .then(response => response.json())
       .then(json => setData(json))
       .catch(error => console.error(error));
@@ -63,7 +63,10 @@ export default function SignIn() {
     }
 
     if (userIndex !== -1 && password === data.password[userIndex]) {
-      onPress.navigate('blankspace');
+      onPress.navigate('Homepage');
+
+      setPhoneNumber('');
+      setPassword('');
     }
   };
 
@@ -78,7 +81,7 @@ export default function SignIn() {
         style={styles.input}
         placeholder="Phone number"
         keyboardType="phone-pad"
-        maxLength={11}
+        maxLength={10}
         onChangeText={text => {
           setPhoneNumber(text);
           if (text !== '') {
