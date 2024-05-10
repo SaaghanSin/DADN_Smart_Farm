@@ -2,7 +2,7 @@ const axios = require("axios");
 const db_config = require("./db_config");
 const pool = db_config;
 
-const ADAFRUIT_IO_KEY = "aio_kTbb73aaRft4oVeofa62LY3IDxro";
+const ADAFRUIT_IO_KEY = "aio_nmqS299QubL8kpEvFsl9mkCRwWbZ";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
 const FEED_NAME = "temp";
 const LED_FEED_NAME = "led";
@@ -177,7 +177,7 @@ pool
         console.error("Error:", error);
       }
     };
-
+    
     const fetchLuxDataAndPrint = async () => {
       try {
         const luxResponse = await axios.get(
@@ -218,9 +218,9 @@ pool
       }
     };
 
-    // setInterval(fetchDataAndPrint, 10000);
+    setInterval(fetchDataAndPrint, 10000);
     fetchLedDataAndPrint();
-    // setInterval(fetchLuxDataAndPrint, 11000);
+    setInterval(fetchLuxDataAndPrint, 11000);
   })
   .catch((error) => {
     console.error("Error connecting to the database:", error);
