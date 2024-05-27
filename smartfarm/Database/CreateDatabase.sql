@@ -1,8 +1,16 @@
-CREATE TABLE users (
-    user_name VARCHAR(50) PRIMARY KEY,
-    hashed_password VARCHAR(50) UNIQUE NOT NULL
-);
+CREATE TABLE gmails (
+    gmailuser VARCHAR(50),
+    gmailpass VARCHAR(50)
+)
 
+CREATE TABLE users (
+    phonenum VARCHAR(50) PRIMARY KEY,
+    password VARCHAR(50) UNIQUE NOT NULL
+)
+
+CREATE TABLE otp (
+    otpcode VARCHAR(10)
+)
 
 CREATE SEQUENCE reminder_id_sequence;
 
@@ -71,13 +79,13 @@ CREATE TABLE activity (
 );
 
 ALTER TABLE reminder
-ADD FOREIGN KEY (username) REFERENCES users(user_name);
+ADD FOREIGN KEY (username) REFERENCES users(phonenum);
 
 ALTER TABLE configurations
-ADD FOREIGN KEY (username) REFERENCES users(user_name);
+ADD FOREIGN KEY (username) REFERENCES users(phonenum);
 
 ALTER TABLE device
-ADD FOREIGN KEY (username) REFERENCES users(user_name);
+ADD FOREIGN KEY (username) REFERENCES users(phonenum);
 
 ALTER TABLE record
 ADD FOREIGN KEY (device_id) REFERENCES device(device_id);
@@ -94,12 +102,56 @@ ADD FOREIGN KEY (temperature_record_id) REFERENCES record(record_id);
 ALTER TABLE light_record
 ADD FOREIGN KEY (light_record_id) REFERENCES record(record_id);
 
-INSERT INTO users (user_name, hashed_password) VALUES ('username1', 'password1');
-
 INSERT INTO device (device_id, device_type, device_location, username) VALUES 
 	('1', 'temp_sensor', 'BK', 'username1'),
 	('2', 'light_sensor', 'BK', 'username1'),
 	('L1', 'light', 'BK', 'username1'),
 	('L2', 'light', 'BK', 'username1'),
 	('L3', 'light', 'BK', 'username1'),
-  ('M1', 'moisture', 'BK', 'username1');
+  	('M1', 'moisture', 'BK', 'username1');
+  
+INSERT INTO users VALUES 
+('0112233445','123456'),
+('0123456789','123456789'),
+('0192938281','HCMUTK21'),
+('0234493233','motlongvibachkhoa'),
+('0429929101','bachkhoamuonnam'),
+('0566778899','0878785'),
+('0847292921','yeubku123'),
+('0912812919','123445'),
+('0912912191','1232454432'),
+('0987654321','sinhviennam3')
+
+INSERT INTO gmails VALUES
+('thanhhai123@gmail.com','020703'),
+('quanghien132@gmail.com','141200'),
+('lehien321@gmail.com','Hien123'),
+('nguyenduong312@gmail.com','smartfarm12345'),
+('hoangdai213@gmail.com','localhost111'),
+('nguyenhai1412@gmail.com','nhai112233'),
+('hienquang023@gmail.com','aabbccdd'),
+('hienle534@gmail.com','bigbang'),
+('duongnguyen029@gmail.com','BoyHCMUT'),
+('daivu555@gmail.com','014DaiVu')
+
+INSERT INTO otp VALUES
+('012345'),
+('923828'),
+('298390'),
+('029309'),
+('928398'),
+('203900'),
+('209309'),
+('476568'),
+('856887'),
+('356769'),
+('029838'),
+('123456'),
+('434565'),
+('434679'),
+('678976'),
+('548759'),
+('978574'),
+('345678'),
+('865865'),
+('546779')

@@ -1,5 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity} from 'react-native';
+import Feather from "react-native-vector-icons/Feather";
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
@@ -8,12 +8,39 @@ import ForgotPassword from './layouts/ForgotPassword';
 import OTPPhone from './layouts/OTPPhone';
 import GoogleSig from './layouts/GoogleSig';
 import ChangePassword from './layouts/changePassword';
-import BlankSpace from './layouts/blankspace';
 import SignInNow from './layouts/SignInNow';
 import SignInOTP from './layouts/SignInOTP';
+import Homepage from './layouts/home';
+import Watering from './layouts/watering';
+import Light from './layouts/light';
+import Temperature from './layouts/temperature';
+import Task from './layouts/task';
+import Noti from './layouts/notification';
+import Setting from './layouts/setting';
+import Chart from './layouts/chart';
 
 const Stack = createStackNavigator();
 export default function App() {
+  const headerOptions = ({ navigation }) => ({
+    headerLeft: null,
+    headerTitle: '',
+    headerRight: () => (
+      <View style={styles.headerRightContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('Homepage')}>
+          <Feather name='home' size={24} color='black' style={styles.headerIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Chart')}>
+          <Feather name='bar-chart-2' size={24} color='black' style={styles.headerIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Noti')}>
+          <Feather name='bell' size={24} color='black' style={styles.headerIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
+          <Feather name='settings' size={24} color='black' style={styles.headerIcon} />
+        </TouchableOpacity>
+      </View>
+    ),
+  });
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -33,7 +60,25 @@ export default function App() {
         options={{headerTitle:'Sign In with OTP'}}/>
         <Stack.Screen name='SignInOTP' component={SignInOTP}
         options={{headerTitle:'Sign In'}} />
-        <Stack.Screen name= 'blankspace' component={BlankSpace}/> 
+        <Stack.Screen
+          name='Homepage'
+          component={Homepage}
+          options={headerOptions}
+        />
+        <Stack.Screen name = 'Watering' component={Watering}
+        options={headerOptions}/>
+        <Stack.Screen name = 'Light' component={Light}
+        options={headerOptions}/>
+        <Stack.Screen name = 'Tempera' component={Temperature}
+        options={headerOptions}/>
+        <Stack.Screen name = 'Task' component={Task}
+        options={headerOptions}/>
+        <Stack.Screen name = 'Noti' component={Noti} 
+        options={headerOptions}/>
+        <Stack.Screen name = 'Setting' component={Setting}
+        options={headerOptions}/>
+        <Stack.Screen name = 'Chart' component={Chart}
+        options={headerOptions}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -46,4 +91,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  headerRightContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginRight: 45,
+    width: 325, 
+  },
+  headerIcon: {
+    marginLeft: 15,
+  }
 });
