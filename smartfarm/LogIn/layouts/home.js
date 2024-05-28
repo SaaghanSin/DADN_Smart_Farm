@@ -7,12 +7,15 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
+const ADAFRUIT_IO_KEY = "";
+const ADAFRUIT_IO_USERNAME = "duongwt16";
 
 export default function Homepage({ setContent }) {
   const onPress = useNavigation();
   const [temperatureData, setTemperatureData] = useState(0.0);
   const [lightData, setLightData] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
+  const [isAutomatic, setIsAutomatic] = useState(false);
   const handleWater = () => {
     onPress.navigate("Watering");
   };
@@ -28,12 +31,14 @@ export default function Homepage({ setContent }) {
   useEffect(() => {
     fetchData();
     fetchTaskCount();
+    fetchLightData();
+    fetchAutoLightData();
   }, []);
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "http://10.229.71.101:3000/latest-temperature"
+        "http://192.168.1.224:3000/latest-temperature"
       );
       setTemperatureData(response.data.temperature);
     } catch (error) {
@@ -43,12 +48,42 @@ export default function Homepage({ setContent }) {
 
   const fetchTaskCount = async () => {
     try {
-      const response = await axios.get("http://10.229.71.101:3000/task-count");
+      const response = await axios.get("http://192.168.1.224:3000/task-count");
       setTaskCount(response.data.total_reminders);
     } catch (error) {
       console.error("Error fetching task count:", error);
     }
   };
+
+  const fetchLightData = async () => {
+    try {
+      const response = await axios.get("http://192.168.1.224:3000/activity/L1");
+      const data = response.data;
+      setLightData(data.acttivity_description === "ON");
+    } catch (error) {
+      console.error("Error fetching light data:", error);
+    }
+  };
+
+  const fetchAutoLightData = async () => {
+    try {
+      const response = await axios.get(
+        `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/auto-light/data`,
+        {
+          headers: {
+            "X-AIO-Key": ADAFRUIT_IO_KEY,
+          },
+        }
+      );
+      const data = response.data;
+      if (data.length > 0) {
+        setIsAutomatic(data[0].value === "1");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleWater}>
@@ -76,9 +111,9 @@ export default function Homepage({ setContent }) {
           <View style={styles.buttonContent}>
             <Entypo name="light-up" size={30} color="#000" />
             <Text style={[styles.buttonText, { color: "#000" }]}>
-              Light: On
+            Light: {lightData ? "On" : "Off"}
             </Text>
-            <Text style={[styles.buttonText, { color: "#000" }]}>Manual</Text>
+            <Text style={[styles.buttonText, { color: "#000" }]}>{isAutomatic ? "Automatic" : "Manual"}</Text>
           </View>
         </LinearGradient>
       </TouchableOpacity>
