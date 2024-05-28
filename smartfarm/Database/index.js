@@ -598,6 +598,17 @@ app.get("/task-count", (req, res) => {
     }
   );
 });
+app.post("/deleteTask", (req, res) => {
+  const { taskId } = req.body;
+  pool.query("DELETE FROM reminder WHERE reminder_id = $1", [taskId], (err) => {
+    if (err) {
+      console.error("Error deleting task:", err.message);
+      res.status(500).json({ error: "Internal server error" });
+    } else {
+      res.status(200).json({ message: "Task deleted successfully" });
+    }
+  });
+});
 app.get("/", (req, res) => {
   res.send("Welcome to my Express application!");
 });

@@ -155,3 +155,51 @@ INSERT INTO otp VALUES
 ('345678'),
 ('865865'),
 ('546779')
+
+
+-- Sample data for configurations table
+INSERT INTO configurations (area, receive_notification, upper_limit, base_limit, pump_mode, moisture_mode, moisture_base_limit, moisture_upper_limit, username) VALUES
+('Area1', 'Email', 75.0, 50.0, TRUE, TRUE, 30.0, 60.0, '0112233445'),
+('Area2', 'SMS', 80.0, 55.0, FALSE, TRUE, 35.0, 65.0, '0123456789'),
+('Area3', 'Email', 70.0, 45.0, TRUE, FALSE, 25.0, 55.0, '0192938281');
+INSERT INTO device (device_id, device_type, device_location, username) VALUES 
+	('1', 'temp_sensor', 'BK', '0112233445'),
+	('2', 'light_sensor', 'BK', '0112233445'),
+	('L1', 'light', 'BK', '0112233445'),
+	('L2', 'light', 'BK', '0112233445'),
+	('L3', 'light', 'BK', '0112233445'),
+  	('M1', 'moisture', 'BK', '0112233445');
+
+-- Sample data for record table
+INSERT INTO record (record_id, record_date, device_id) VALUES
+(1, '2024-01-01', '1'),
+(2, '2024-01-02', '2'),
+(3, '2024-01-03', 'L1'),
+(4, '2024-01-04', 'L2'),
+(5, '2024-01-05', 'M1');
+
+-- Sample data for moisture_record table
+INSERT INTO moisture_record (moisture_record_id, moisture) VALUES
+(1, 40.5),
+(2, 42.0),
+(3, 38.0);
+
+-- Sample data for temperature_record table
+INSERT INTO temperature_record (temperature_record_id, temperature) VALUES
+(1, 22.5),
+(2, 23.0),
+(3, 21.5);
+
+-- Sample data for light_record table
+INSERT INTO light_record (light_record_id, lux) VALUES
+(1, 300),
+(2, 350),
+(3, 320);
+
+-- Sample data for activity table
+INSERT INTO activity (activity_time, acttivity_description, device_id) VALUES
+('2024-01-01', 'Checked moisture level', '1'),
+('2024-01-02', 'Checked light level', '2'),
+('2024-01-03', 'Turned on light', 'L1'),
+('2024-01-04', 'Turned off light', 'L2'),
+('2024-01-05', 'Checked moisture level', 'M1');

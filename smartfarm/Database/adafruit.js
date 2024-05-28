@@ -2,59 +2,122 @@ const axios = require("axios");
 const db_config = require("./db_config");
 const pool = db_config;
 
-const ADAFRUIT_IO_KEY = "aio_kTbb73aaRft4oVeofa62LY3IDxro";
+const ADAFRUIT_IO_KEY = "aio_Zwjr73HUl6i0OdwRhpDI5hS6TV1Z";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
-const FEED_NAME = "temp";
+const TEMP_FEED_NAME = "temp";
 const LED_FEED_NAME = "led";
 const LUX_FEED_NAME = "lux";
+const MOIS_FEED_NAME = "SM";
 
 pool
   .connect()
   .then(() => {
     console.log("Connected to the database");
 
-    const fetchDataAndPrint = async () => {
+    let lastTempId = null;
+    const fetchTempDataAndPrint = async () => {
       try {
-        const response = await axios.get(
-          `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${FEED_NAME}/data`,
+        const ledResponse = await axios.get(
+          `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${TEMP_FEED_NAME}/data`,
           {
             headers: {
               "X-AIO-Key": ADAFRUIT_IO_KEY,
             },
           }
         );
-        const data = response.data;
-        if (data.length > 0) {
-          const latestData = data[0];
+        const tempData = ledResponse.data;
+        if (tempData.length > 0) {
+          const latestData = tempData[0];
+          const tempId = latestData.id;
           const temperature = latestData.value;
           const recordDate = new Date(latestData.created_at);
 
-          // Get the latest record_id from the record table
-          const latestRecord = await pool.query(
-            "SELECT MAX(record_id) AS max_id FROM record"
-          );
-          const latestRecordId = latestRecord.rows[0].max_id || 0; // If no records, set it to 0
-          const newRecordId = latestRecordId + 1; // Generate a new record_id
+          if (tempId !== lastTempId) {
+            lastTempId = tempId;
+            console.log(`Latest temp status: ${temperature} at ${recordDate}`);
 
-          await pool.query(
-            "INSERT INTO record (record_id, record_date, device_id) VALUES ($1, $2, 1)",
-            [newRecordId, recordDate]
-          );
-          await pool.query(
-            "INSERT INTO temperature_record (temperature_record_id, temperature) VALUES ($1, $2)",
-            [newRecordId, temperature]
-          );
-          console.log(`Latest temperature: ${temperature} at ${recordDate}`);
+            try {
+              const latestRecord = await pool.query(
+                "SELECT MAX(record_id) AS max_id FROM record"
+              );
+              const latestRecordId = latestRecord.rows[0].max_id || 0;
+              const newRecordId = latestRecordId + 1;
+              await pool.query(
+                "INSERT INTO record (record_id, record_date, device_id) VALUES ($1, $2, 1)",
+                [newRecordId, recordDate]
+              );
+
+              await pool.query(
+                "INSERT INTO temperature_record (temperature_record_id, temperature) VALUES ($1, $2)",
+                [newRecordId, temperature]
+              );
+
+              console.log(`Inserted new record with ID ${newRecordId}`);
+            } catch (dbError) {
+              console.error("Database error:", dbError);
+            }
+          }
         } else {
-          console.log("No data available from Adafruit");
+          console.log("No temp data available from Adafruit");
         }
       } catch (error) {
         console.error("Error:", error);
       }
+      setTimeout(fetchTempDataAndPrint, 2000);
+    };
+
+    let lastMoisId = null;
+    const fetchMoisDataAndPrint = async () => {
+      try {
+        const ledResponse = await axios.get(
+          `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${MOIS_FEED_NAME}/data`,
+          {
+            headers: {
+              "X-AIO-Key": ADAFRUIT_IO_KEY,
+            },
+          }
+        );
+        if (moisData.length > 0) {
+          const latestData = moisData[0];
+          const moisId = latestData.id;
+          const moisture = latestData.value;
+          const recordDate = new Date(latestData.created_at);
+
+          if (moisId !== lastMoisId) {
+            lastMoisId = moisId;
+            console.log(`Latest moisture status: ${moisture} at ${recordDate}`);
+
+            // try {
+            //   const latestRecord = await pool.query(
+            //     "SELECT MAX(record_id) AS max_id FROM record"
+            //   );
+            //   const latestRecordId = latestRecord.rows[0].max_id || 0;
+            //   const newRecordId = latestRecordId + 1;
+            //   await pool.query(
+            //     "INSERT INTO record (record_id, record_date, device_id) VALUES ($1, $2, M1)",
+            //     [newRecordId, recordDate]
+            //   );
+
+            //   await pool.query(
+            //     "INSERT INTO moisture_record (moisture_record_id, moisture) VALUES ($1, $2)",
+            //     [newRecordId, moisture]
+            //   );
+
+            //   console.log(`Inserted new record with ID ${newRecordId}`);
+            // } catch (dbError) {
+            //   console.error("Database error:", dbError);
+            // }
+          }
+        } else {
+          console.log("No temp data available from Adafruit");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+      setTimeout(fetchMoisDataAndPrint, 2000);
     };
 
     let lastLedId = "";
-
     const fetchLedDataAndPrint = async () => {
       try {
         const ledResponse = await axios.get(
@@ -72,22 +135,24 @@ pool
           const status = latestData.value;
           const recordDate = new Date(latestData.created_at);
           const newActivityDescription = status == 0 ? "OFF" : "ON";
-          
+
           if (ledId !== lastLedId) {
             lastLedId = ledId;
             await pool.query(
               "INSERT INTO activity (activity_time, acttivity_description, device_id) VALUES ($1, $2, 'L1')",
               [recordDate, newActivityDescription]
             );
-            console.log(`Latest led status: ${newActivityDescription} at ${recordDate}`);
-          }          
+            console.log(
+              `Latest led status: ${newActivityDescription} at ${recordDate}`
+            );
+          }
         } else {
           console.log("No led data available from Adafruit");
         }
       } catch (error) {
         console.error("Error:", error);
       }
-      setTimeout(function() {
+      setTimeout(function () {
         sendLedData();
         setTimeout(fetchLedDataAndPrint, 2000);
       }, 2000);
@@ -106,8 +171,7 @@ pool
         const data = response.data;
         const latestData = data[0];
         lastLedId = latestData.id;
-      }
-      catch (error) {
+      } catch (error) {
         console.error("Error:", error);
       }
     };
@@ -129,7 +193,7 @@ pool
       } catch (error) {
         console.error("Error:", error);
       }
-    }
+    };
 
     const sendLedData = async () => {
       try {
@@ -145,12 +209,13 @@ pool
         if (ledCheckData.length > 0) {
           const data = ledCheckData[0];
           const status = data.value;
-          
+
           // get the latest led status from the activity table
           const latestActivity = await pool.query(
             "SELECT * FROM activity WHERE device_id = 'L1' ORDER BY activity_id DESC LIMIT 1"
           );
-          const latestActivityDescription = latestActivity.rows[0].acttivity_description;
+          const latestActivityDescription =
+            latestActivity.rows[0].acttivity_description;
 
           if (status == 0 && latestActivityDescription == "ON") {
             await postLedData(1);
@@ -163,7 +228,8 @@ pool
           const latestActivity = await pool.query(
             "SELECT * FROM activity WHERE device_id = 'L1' ORDER BY activity_id DESC LIMIT 1"
           );
-          const latestActivityDescription = latestActivity.rows[0].acttivity_description;
+          const latestActivityDescription =
+            latestActivity.rows[0].acttivity_description;
           if (latestActivityDescription == "ON") {
             await postLedData(1);
             await setLatestLedId();
@@ -172,8 +238,7 @@ pool
             await setLatestLedId();
           }
         }
-      }
-      catch (error) {
+      } catch (error) {
         console.error("Error:", error);
       }
     };
@@ -219,7 +284,9 @@ pool
     };
 
     // setInterval(fetchDataAndPrint, 10000);
+    fetchTempDataAndPrint();
     fetchLedDataAndPrint();
+    fetchMoisDataAndPrint();
     // setInterval(fetchLuxDataAndPrint, 11000);
   })
   .catch((error) => {

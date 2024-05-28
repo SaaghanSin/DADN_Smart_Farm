@@ -27,8 +27,8 @@ export default function Temperature() {
   const fetchLimits = async () => {
     try {
       const [baseLimitResponse, upperLimitResponse] = await Promise.all([
-        axios.get("http://localhost:3000/base-limit"),
-        axios.get("http://localhost:3000/upper-limit"),
+        axios.get("http://10.229.71.101:3000/base-limit"),
+        axios.get("http://10.229.71.101:3000/upper-limit"),
       ]);
 
       const { base_limit } = baseLimitResponse.data;
@@ -69,11 +69,11 @@ export default function Temperature() {
         upperLimit <= 40
       ) {
         try {
-          await axios.put("http://localhost:3000/put-upper-limit", {
+          await axios.put("http://10.229.71.101:3000/put-upper-limit", {
             upperLimit,
           });
 
-          await axios.put("http://localhost:3000/put-base-limit", {
+          await axios.put("http://10.229.71.101:3000/put-base-limit", {
             baseLimit,
           });
 
@@ -111,7 +111,7 @@ export default function Temperature() {
           tempUpper <= 40
         ) {
           try {
-            await axios.put("http://localhost:3000/put-form-limits", {
+            await axios.put("http://10.229.71.101:3000/put-form-limits", {
               tempBase,
               tempUpper,
             });

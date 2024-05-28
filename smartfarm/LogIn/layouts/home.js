@@ -33,7 +33,7 @@ export default function Homepage({ setContent }) {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/latest-temperature"
+        "http://10.229.71.101:3000/latest-temperature"
       );
       setTemperatureData(response.data.temperature);
     } catch (error) {
@@ -43,7 +43,7 @@ export default function Homepage({ setContent }) {
 
   const fetchTaskCount = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/task-count");
+      const response = await axios.get("http://10.229.71.101:3000/task-count");
       setTaskCount(response.data.total_reminders);
     } catch (error) {
       console.error("Error fetching task count:", error);

@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   ActivityIndicator,
-  Button,
   Text,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
+
 const Chart = () => {
   const [temperatureData, setTemperatureData] = useState(null);
   const [lightData, setLightData] = useState(null);
@@ -30,11 +31,13 @@ const Chart = () => {
 
   const fetchDataForCurrentMonth = async () => {
     const temperature = await fetchData(
-      "http://localhost:3000/temperature/current-month"
+      "http://10.229.71.101:3000/temperature/current-month"
     );
-    const light = await fetchData("http://localhost:3000/lights/current-month");
+    const light = await fetchData(
+      "http://10.229.71.101:3000/lights/current-month"
+    );
     const moisture = await fetchData(
-      "http://localhost:3000/moisture/current-month"
+      "http://10.229.71.101:3000/moisture/current-month"
     );
 
     setTemperatureData(temperature);
@@ -44,11 +47,13 @@ const Chart = () => {
 
   const fetchDataForCurrentYear = async () => {
     const temperature = await fetchData(
-      "http://localhost:3000/temperature/current-year"
+      "http://10.229.71.101:3000/temperature/current-year"
     );
-    const light = await fetchData("http://localhost:3000/lights/current-year");
+    const light = await fetchData(
+      "http://10.229.71.101:3000/lights/current-year"
+    );
     const moisture = await fetchData(
-      "http://localhost:3000/moisture/current-year"
+      "http://10.229.71.101:3000/moisture/current-year"
     );
 
     // Format temperature data for current year
@@ -82,7 +87,13 @@ const Chart = () => {
   }, []);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <ScrollView
+      contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
@@ -228,8 +239,20 @@ const Chart = () => {
           )}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
 export default Chart;
+
+const styles = {
+  button: {
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+};
