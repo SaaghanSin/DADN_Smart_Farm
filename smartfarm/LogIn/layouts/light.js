@@ -14,16 +14,42 @@ import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { Button as ElementsButton } from "react-native-elements";
 import { ActivityIndicator } from "react-native";
+import axios from "axios";
+const ADAFRUIT_IO_KEY = "";
+const ADAFRUIT_IO_USERNAME = "duongwt16";
 
 export default function Light() {
-  const [isAutomatic, setIsAutomatic] = useState(true);
+  const [isAutomatic, setIsAutomatic] = useState(false);
   const [lights, setLights] = useState([]);
   const [lux, setLux] = useState(null);
 
+  const fetchAutoLightData = async () => {
+    try {
+      const response = await axios.get(
+        `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/auto-light/data`,
+        {
+          headers: {
+            "X-AIO-Key": ADAFRUIT_IO_KEY,
+          },
+        }
+      );
+      const data = response.data;
+      if (data.length > 0) {
+        setIsAutomatic(data[0].value === "1");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchAutoLightData();
+  }, []);
+
   const fetchLights = async () => {
     try {
-      // replace the localhost with your IP address
-      const response = await fetch(`http://10.229.86.82:3000/light/username1`);
+      // replace the 192.168.206.123 with your IP address
+      const response = await fetch(`http://192.168.206.123:3000/light/0112233445`);
       const data = await response.json();
       setLights(data);
     } catch (error) {
@@ -43,8 +69,8 @@ export default function Light() {
         return deviceId > acc ? deviceId : acc;
       }, 0);
       const newDeviceId = `L${maxDeviceId + 1}`;
-      // replace the localhost with your IP address
-      const response = await fetch(`http://10.229.86.82:3000/light/username1`, {
+      // replace the 192.168.206.123 with your IP address
+      const response = await fetch(`http://192.168.206.123:3000/light/0112233445`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,8 +96,8 @@ export default function Light() {
       return;
     } else {
       try {
-        // replace the localhost with your IP address
-        const response = await fetch(`http://10.229.86.82:3000/light/${deviceId}`, {
+        // replace the 192.168.206.123 with your IP address
+        const response = await fetch(`http://192.168.206.123:3000/light/${deviceId}`, {
           method: "DELETE",
         });
         if (response.status === 200) {
@@ -83,14 +109,14 @@ export default function Light() {
     }
   };
 
-  const CustomSwitch = ({ deviceId }) => {
+  const CustomSwitch = ({ deviceId, isAutomatic }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isOn, setIsOn] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     
     const fetchLightStatus = async () => {
       try {
-        const response = await fetch(`http://10.229.86.82:3000/activity/${deviceId}`);
+        const response = await fetch(`http://192.168.206.123:3000/activity/${deviceId}`);
         const data = await response.json();
         setIsOn(data.acttivity_description === "ON");
         setIsLoading(false);
@@ -116,7 +142,7 @@ export default function Light() {
       }
       setIsUpdating(true);
       try {
-        const response = await fetch(`http://10.229.86.82:3000/activity`, {
+        const response = await fetch(`http://192.168.206.123:3000/activity`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -147,7 +173,7 @@ export default function Light() {
         <Switch 
           value={isOn}
           onValueChange={handleSwitch}
-          disabled={isUpdating}
+          disabled={isUpdating || isAutomatic}
         />
       </TouchableOpacity>
     );
@@ -155,7 +181,7 @@ export default function Light() {
   
   const fetchLux = async () => {
     try {
-      const response = await fetch(`http://10.229.86.82:3000/lux`);
+      const response = await fetch(`http://192.168.206.123:3000/lux`);
       const data = await response.json();
       setLux(data.lux);
     } catch (error) {
@@ -169,6 +195,24 @@ export default function Light() {
     // clean up function
     return () => clearInterval(intervalId);
   }, []);
+  
+  const sendAutoLightData = async () => {
+    try {
+      await axios.post(
+        `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/auto-light/data`,
+        {
+          value: isAutomatic ? 0 : 1,
+        },
+        {
+          headers: {
+            "X-AIO-Key": ADAFRUIT_IO_KEY,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
 
   const LightControl = ({ label, deviceId }) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -190,7 +234,7 @@ export default function Light() {
         onPress={() => setModalVisible(true)}
       >
         <Text>{label}</Text>
-        <CustomSwitch deviceId={deviceId} />
+        <CustomSwitch deviceId={deviceId} isAutomatic={isAutomatic} />
   
         <Modal
           animationType="slide"
@@ -296,10 +340,13 @@ export default function Light() {
         }}
       >
         <Text style={{ marginRight: 15 }}>
-          {isAutomatic ? "Manual" : "Automatic"}
+          {isAutomatic ? "Automatic" : "Manual"}
         </Text>
         <Switch
-          onValueChange={() => setIsAutomatic(!isAutomatic)}
+          onValueChange={(value) => {
+            setIsAutomatic(value);
+            sendAutoLightData();
+          }}
           value={isAutomatic}
           style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
         />
