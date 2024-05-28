@@ -32,7 +32,7 @@ const Task = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch("http://10.229.86.82:3000/tasks");
+      const response = await fetch("http://localhost:3000/tasks");
       if (!response.ok) {
         throw new Error("Failed to fetch tasks");
       }
@@ -59,7 +59,7 @@ const Task = () => {
         .toString()
         .padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:00`;
 
-      const response = await fetch("http://10.229.86.82:3000/tasks", {
+      const response = await fetch("http://localhost:3000/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +110,7 @@ const Task = () => {
     updatedTasks[index].on_off = !updatedTasks[index].on_off;
     try {
       console.log(updatedTasks);
-      const response = await fetch(`http://10.229.86.82:3000/tasks/${id}`, {
+      const response = await fetch(`http://localhost:3000/tasks/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -133,7 +133,7 @@ const Task = () => {
 
   const deleteTask = async (taskId, index) => {
     try {
-      const response = await fetch("http://10.229.86.82:3000/deleteTask", {
+      const response = await fetch("http://localhost:3000/deleteTask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

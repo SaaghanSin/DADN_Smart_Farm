@@ -6,7 +6,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 export default function Homepage({ setContent }) {
   const onPress = useNavigation();
@@ -14,17 +14,17 @@ export default function Homepage({ setContent }) {
   const [lightData, setLightData] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
   const handleWater = () => {
-    onPress.navigate('Watering');
-  }
+    onPress.navigate("Watering");
+  };
   const handleLight = () => {
-    onPress.navigate('Light');
-  }
+    onPress.navigate("Light");
+  };
   const handleTemp = () => {
-    onPress.navigate('Tempera');
-  }
+    onPress.navigate("Tempera");
+  };
   const handleTask = () => {
-    onPress.navigate('Task');
-  }
+    onPress.navigate("Task");
+  };
   useEffect(() => {
     fetchData();
     fetchTaskCount();
@@ -33,7 +33,7 @@ export default function Homepage({ setContent }) {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "http://10.229.86.82:3000/latest-temperature"
+        "http://localhost:3000/latest-temperature"
       );
       setTemperatureData(response.data.temperature);
     } catch (error) {
@@ -43,7 +43,7 @@ export default function Homepage({ setContent }) {
 
   const fetchTaskCount = async () => {
     try {
-      const response = await axios.get("http://10.229.86.82:3000/task-count");
+      const response = await axios.get("http://localhost:3000/task-count");
       setTaskCount(response.data.total_reminders);
     } catch (error) {
       console.error("Error fetching task count:", error);
@@ -51,10 +51,7 @@ export default function Homepage({ setContent }) {
   };
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleWater}
-      >
+      <TouchableOpacity style={styles.button} onPress={handleWater}>
         <LinearGradient
           colors={["#00c6fb", "#005bea"]}
           start={{ x: 0, y: 0 }}
@@ -69,10 +66,7 @@ export default function Homepage({ setContent }) {
         </LinearGradient>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleLight}
-      >
+      <TouchableOpacity style={styles.button} onPress={handleLight}>
         <LinearGradient
           colors={["#ffc837", "#ff8008"]}
           start={{ x: 0, y: 0 }}
@@ -89,10 +83,7 @@ export default function Homepage({ setContent }) {
         </LinearGradient>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleTemp}
-      >
+      <TouchableOpacity style={styles.button} onPress={handleTemp}>
         <LinearGradient
           colors={["#ff512f", "#dd2476"]}
           start={{ x: 0, y: 0 }}
@@ -107,10 +98,7 @@ export default function Homepage({ setContent }) {
         </LinearGradient>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleTask}
-      >
+      <TouchableOpacity style={styles.button} onPress={handleTask}>
         <LinearGradient
           colors={["#1d976c", "#93f9b9"]}
           start={{ x: 0, y: 0 }}

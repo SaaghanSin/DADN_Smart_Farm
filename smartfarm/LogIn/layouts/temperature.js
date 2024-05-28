@@ -5,7 +5,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   TextInput,
-  StyleSheet
+  StyleSheet,
 } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Button as ElementsButton } from "react-native-elements";
@@ -27,8 +27,8 @@ export default function Temperature() {
   const fetchLimits = async () => {
     try {
       const [baseLimitResponse, upperLimitResponse] = await Promise.all([
-        axios.get("http://10.229.86.82:3000/base-limit"),
-        axios.get("http://10.229.86.82:3000/upper-limit"),
+        axios.get("http://localhost:3000/base-limit"),
+        axios.get("http://localhost:3000/upper-limit"),
       ]);
 
       const { base_limit } = baseLimitResponse.data;
@@ -69,11 +69,11 @@ export default function Temperature() {
         upperLimit <= 40
       ) {
         try {
-          await axios.put("http://10.229.86.82:3000/put-upper-limit", {
+          await axios.put("http://localhost:3000/put-upper-limit", {
             upperLimit,
           });
 
-          await axios.put("http://10.229.86.82:3000/put-base-limit", {
+          await axios.put("http://localhost:3000/put-base-limit", {
             baseLimit,
           });
 
@@ -91,8 +91,8 @@ export default function Temperature() {
   };
 
   const openFormModal = () => {
-    setTempBaseLimit((baseLimit.toFixed(1)).toString());
-    setTempUpperLimit((upperLimit.toFixed(1)).toString());
+    setTempBaseLimit(baseLimit.toFixed(1).toString());
+    setTempUpperLimit(upperLimit.toFixed(1).toString());
     setErrorMessage("");
     setModalVisible(true);
   };
@@ -111,7 +111,7 @@ export default function Temperature() {
           tempUpper <= 40
         ) {
           try {
-            await axios.put("http://10.229.86.82:3000/put-form-limits", {
+            await axios.put("http://localhost:3000/put-form-limits", {
               tempBase,
               tempUpper,
             });
@@ -141,8 +141,8 @@ export default function Temperature() {
     label: {
       fontSize: 17,
       marginBottom: 20,
-      fontWeight:'bold'
-    }
+      fontWeight: "bold",
+    },
   });
 
   return (
@@ -186,7 +186,7 @@ export default function Temperature() {
       <View style={styles.sliderContainer}>
         <Text style={styles.label}>Base Limit: {baseLimit.toFixed(1)}</Text>
         <Slider
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           minimumValue={15}
           maximumValue={40}
           step={0.1}
@@ -198,7 +198,7 @@ export default function Temperature() {
       <View style={styles.sliderContainer}>
         <Text style={styles.label}>Upper Limit: {upperLimit.toFixed(1)}</Text>
         <Slider
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           minimumValue={15}
           maximumValue={40}
           step={0.1}
@@ -211,21 +211,21 @@ export default function Temperature() {
         title="Save"
         onPress={saveLimits}
         buttonStyle={{
-          backgroundColor: 'black',
+          backgroundColor: "black",
           marginTop: 20,
           marginBottom: 10,
-          width: '100%',
+          width: "100%",
         }}
         ViewComponent={LinearGradient}
         linearGradientProps={{
-          colors: ['#1d976c', '#93f9b9'],
+          colors: ["#1d976c", "#93f9b9"],
           start: { x: 0, y: 0 },
           end: { x: 1, y: 0 },
           style: {
             borderRadius: 10,
           },
         }}
-        titleStyle={{ color: 'white' }}
+        titleStyle={{ color: "white" }}
       />
       {errorMessage ? (
         <Text style={{ color: "red", marginBottom: 10 }}>{errorMessage}</Text>
