@@ -25,17 +25,12 @@ const Watering = () => {
           togglePumpMode(true)
           putPumpMode()
         }
-      } else if (baseLimit <= soilMoisture && soilMoisture <= moistureLimit){
+      } else {
         if (isPumping){
           togglePumpMode(false)
           putPumpMode()
         }
-      } else if (moistureLimit < soilMoisture){
-        if (isPumping){
-          togglePumpMode(false)
-          putPumpMode()
-        }
-      }
+      } 
     } catch(error){
       console.error(error);
     }
