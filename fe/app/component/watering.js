@@ -54,6 +54,7 @@ const Watering = () => {
 
   const putMoistureLimit = async () => {
     if (!(baseLimit < moistureLimit)){
+      alert("Base limit must be smaller than upper limit");
       return;
     }
     try {
