@@ -1,5 +1,3 @@
-import console from "../LogApp/.expo/metro/externals/console/index.js";
-
 const express = require("express");
 const cors = require("cors");
 const db_config = require("./db_config");

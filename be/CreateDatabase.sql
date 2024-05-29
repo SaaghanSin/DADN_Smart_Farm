@@ -1,8 +1,8 @@
-
 CREATE TABLE users (
     user_name VARCHAR(50) PRIMARY KEY,
     hashed_password VARCHAR(50) UNIQUE NOT NULL
 );
+
 
 CREATE SEQUENCE reminder_id_sequence;
 

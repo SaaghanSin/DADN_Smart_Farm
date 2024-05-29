@@ -9,7 +9,7 @@ export default function GoogleSig() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch('http://192.168.1.38:3000/datas')
+    fetch('http://10.229.86.82:3000/datas')
       .then(response => response.json())
       .then(json => setData(json))
       .catch(error => console.error(error));
@@ -49,7 +49,7 @@ export default function GoogleSig() {
         setPasswordError('');
       }
       if (userIndex !== -1 && password === data.gmailpass[userIndex]) {
-        onPress.navigate('blankspace');
+        onPress.navigate('Homepage');
       }
     }
   };
