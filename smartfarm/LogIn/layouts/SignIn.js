@@ -15,7 +15,7 @@ export default function SignIn() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://10.229.71.101:3000/datas")
+    fetch("http://10.0.118.54:3000/datas")
       .then((response) => response.json())
       .then((json) => setData(json))
       .catch((error) => console.error(error));

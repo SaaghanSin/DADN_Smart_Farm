@@ -285,6 +285,26 @@ app.get("/moisture-configuration", (request, response) => {
   );
 });
 
+// app.get("/temperature/current-month", async (req, res) => {
+//   const currentDate = new Date();
+//   const currentMonth = currentDate.getMonth() + 1;
+//   const currentYear = currentDate.getFullYear();
+
+//   try {
+//     const query = `
+//     SELECT EXTRACT(DAY FROM record.record_date) AS day, temperature
+//     FROM temperature_record
+//     JOIN record ON temperature_record.temperature_record_id = record.record_id
+//     WHERE EXTRACT(MONTH FROM record.record_date) = $1
+//         AND EXTRACT(YEAR FROM record.record_date) = $2
+//     `;
+//     const result = await pool.query(query, [currentMonth, currentYear]);
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error("Error executing query:", error.message);
+//     res.status(500).send("Internal server error");
+//   }
+// });
 app.get("/temperature/current-month", async (req, res) => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
@@ -292,11 +312,12 @@ app.get("/temperature/current-month", async (req, res) => {
 
   try {
     const query = `
-    SELECT EXTRACT(DAY FROM record.record_date) AS day, temperature
-    FROM temperature_record
-    JOIN record ON temperature_record.temperature_record_id = record.record_id
-    WHERE EXTRACT(MONTH FROM record.record_date) = $1
+      SELECT EXTRACT(DAY FROM record.record_date) AS day, AVG(temperature) AS average_temperature
+      FROM temperature_record
+      JOIN record ON temperature_record.temperature_record_id = record.record_id
+      WHERE EXTRACT(MONTH FROM record.record_date) = $1
         AND EXTRACT(YEAR FROM record.record_date) = $2
+      GROUP BY EXTRACT(DAY FROM record.record_date)
     `;
     const result = await pool.query(query, [currentMonth, currentYear]);
     res.json(result.rows);
@@ -339,11 +360,12 @@ app.get("/lights/current-month", async (req, res) => {
 
   try {
     const query = `
-    SELECT EXTRACT(DAY FROM record.record_date) AS day, lux
+    SELECT EXTRACT(DAY FROM record.record_date) AS day, AVG(lux) AS average_light
     FROM light_record
     JOIN record ON light_record.light_record_id = record.record_id
     WHERE EXTRACT(MONTH FROM record.record_date) = $1
-    AND EXTRACT(YEAR FROM record.record_date) = $2
+      AND EXTRACT(YEAR FROM record.record_date) = $2
+    GROUP BY EXTRACT(DAY FROM record.record_date)
     `;
     const result = await pool.query(query, [currentMonth, currentYear]);
     res.json(result.rows);
@@ -384,11 +406,12 @@ app.get("/moisture/current-month", async (req, res) => {
 
   try {
     const query = `
-    SELECT EXTRACT(DAY FROM record.record_date) AS day, moisture
+    SELECT EXTRACT(DAY FROM record.record_date) AS day, AVG(moisture) AS average_moisture
     FROM moisture_record
     JOIN record ON moisture_record.moisture_record_id = record.record_id
     WHERE EXTRACT(MONTH FROM record.record_date) = $1
-        AND EXTRACT(YEAR FROM record.record_date) = $2
+      AND EXTRACT(YEAR FROM record.record_date) = $2
+    GROUP BY EXTRACT(DAY FROM record.record_date)
     `;
     const result = await pool.query(query, [currentMonth, currentYear]);
     res.json(result.rows);

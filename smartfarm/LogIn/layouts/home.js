@@ -15,32 +15,57 @@ export default function Homepage({ setContent }) {
   const [temperatureData, setTemperatureData] = useState(0.0);
   const [lightData, setLightData] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
+<<<<<<< Updated upstream
   const [isAutomatic, setIsAutomatic] = useState(false);
+=======
+  const [upperLimit, setUpperLimit] = useState(0);
+  const [baseLimit, setBaseLimit] = useState(0);
+
+>>>>>>> Stashed changes
   const handleWater = () => {
     onPress.navigate("Watering");
   };
+
   const handleLight = () => {
     onPress.navigate("Light");
   };
+
   const handleTemp = () => {
     onPress.navigate("Tempera");
   };
+
   const handleTask = () => {
     onPress.navigate("Task");
   };
+
   useEffect(() => {
     fetchData();
     fetchTaskCount();
+<<<<<<< Updated upstream
     fetchLightData();
     fetchAutoLightData();
+=======
+    fetchBaseLimit();
+    fetchUpperLimit();
+>>>>>>> Stashed changes
   }, []);
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
+<<<<<<< Updated upstream
         "http://192.168.1.224:3000/latest-temperature"
+=======
+        "http://10.0.118.54:3000/latest-temperature"
+>>>>>>> Stashed changes
       );
-      setTemperatureData(response.data.temperature);
+      const temperature = response.data.temperature;
+      setTemperatureData(temperature);
+
+      // Check if temperature is out of range
+      if (temperature < baseLimit || temperature > upperLimit) {
+        logActivity(`Temperature out of range: ${temperature}°C`);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -48,13 +73,18 @@ export default function Homepage({ setContent }) {
 
   const fetchTaskCount = async () => {
     try {
+<<<<<<< Updated upstream
       const response = await axios.get("http://192.168.1.224:3000/task-count");
+=======
+      const response = await axios.get("http://10.0.118.54:3000/task-count");
+>>>>>>> Stashed changes
       setTaskCount(response.data.total_reminders);
     } catch (error) {
       console.error("Error fetching task count:", error);
     }
   };
 
+<<<<<<< Updated upstream
   const fetchLightData = async () => {
     try {
       const response = await axios.get("http://192.168.1.224:3000/activity/L1");
@@ -84,6 +114,38 @@ export default function Homepage({ setContent }) {
     }
   };
   
+=======
+  const fetchUpperLimit = async () => {
+    try {
+      const response = await axios.get("http://10.0.118.54:3000/upper-limit");
+      setUpperLimit(response.data.upper_limit);
+    } catch (error) {
+      console.error("Error fetching upper limit:", error);
+    }
+  };
+
+  const fetchBaseLimit = async () => {
+    try {
+      const response = await axios.get("http://10.0.118.54:3000/base-limit");
+      setBaseLimit(response.data.base_limit);
+    } catch (error) {
+      console.error("Error fetching base limit:", error);
+    }
+  };
+
+  const logActivity = async (description) => {
+    try {
+      await axios.post("http://10.0.118.54:3000/activity", {
+        acttivity_description: "Temperature out of range",
+        device_id: 1,
+      });
+      console.log("Activity logged successfully.");
+    } catch (error) {
+      console.error("Error logging activity:", error);
+    }
+  };
+
+>>>>>>> Stashed changes
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleWater}>
@@ -128,6 +190,14 @@ export default function Homepage({ setContent }) {
           <View style={styles.buttonContent}>
             <MaterialCommunityIcons name="thermometer" size={30} color="#fff" />
             <Text style={styles.buttonText}>{temperatureData}°C: Good</Text>
+            {temperatureData < baseLimit || temperatureData > upperLimit ? (
+              <MaterialCommunityIcons
+                name="alert"
+                size={30}
+                color="#000000"
+                style={styles.warningIcon}
+              />
+            ) : null}
             <Text style={styles.buttonText}>Monitoring</Text>
           </View>
         </LinearGradient>
@@ -175,6 +245,9 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: "#fff",
+    marginLeft: 10,
+  },
+  warningIcon: {
     marginLeft: 10,
   },
 });

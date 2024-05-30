@@ -41,15 +41,15 @@ export default function Light() {
       console.error("Error:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchAutoLightData();
   }, []);
 
   const fetchLights = async () => {
     try {
-      // replace the 192.168.206.123 with your IP address
-      const response = await fetch(`http://192.168.206.123:3000/light/0112233445`);
+      // replace the 10.0.118.54 with your IP address
+      const response = await fetch(`http://10.0.118.54:3000/light/0112233445`);
       const data = await response.json();
       setLights(data);
     } catch (error) {
@@ -69,8 +69,8 @@ export default function Light() {
         return deviceId > acc ? deviceId : acc;
       }, 0);
       const newDeviceId = `L${maxDeviceId + 1}`;
-      // replace the 192.168.206.123 with your IP address
-      const response = await fetch(`http://192.168.206.123:3000/light/0112233445`, {
+      // replace the 10.0.118.54 with your IP address
+      const response = await fetch(`http://10.0.118.54:3000/light/0112233445`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,8 +84,7 @@ export default function Light() {
       if (response.status === 200) {
         setLights([...lights, { device_id: newDeviceId }]);
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   };
@@ -96,10 +95,13 @@ export default function Light() {
       return;
     } else {
       try {
-        // replace the 192.168.206.123 with your IP address
-        const response = await fetch(`http://192.168.206.123:3000/light/${deviceId}`, {
-          method: "DELETE",
-        });
+        // replace the 10.0.118.54 with your IP address
+        const response = await fetch(
+          `http://10.0.118.54:3000/light/${deviceId}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (response.status === 200) {
           setLights(lights.filter((light) => light.device_id !== deviceId));
         }
@@ -113,10 +115,12 @@ export default function Light() {
     const [isLoading, setIsLoading] = useState(true);
     const [isOn, setIsOn] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
-    
+
     const fetchLightStatus = async () => {
       try {
-        const response = await fetch(`http://192.168.206.123:3000/activity/${deviceId}`);
+        const response = await fetch(
+          `http://10.0.118.54:3000/activity/${deviceId}`
+        );
         const data = await response.json();
         setIsOn(data.acttivity_description === "ON");
         setIsLoading(false);
@@ -131,7 +135,7 @@ export default function Light() {
       // clean up function
       return () => clearInterval(intervalId);
     }, []);
-  
+
     if (isLoading) {
       return <ActivityIndicator />;
     }
@@ -142,7 +146,7 @@ export default function Light() {
       }
       setIsUpdating(true);
       try {
-        const response = await fetch(`http://192.168.206.123:3000/activity`, {
+        const response = await fetch(`http://10.0.118.54:3000/activity`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -160,17 +164,17 @@ export default function Light() {
       } finally {
         setIsUpdating(false);
       }
-    }
+    };
     return (
-      <TouchableOpacity 
-        style={{ 
-          width: 50, 
+      <TouchableOpacity
+        style={{
+          width: 50,
           height: 30,
-          justifyContent: 'center',
-          alignItems: 'center'
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        <Switch 
+        <Switch
           value={isOn}
           onValueChange={handleSwitch}
           disabled={isUpdating || isAutomatic}
@@ -178,10 +182,10 @@ export default function Light() {
       </TouchableOpacity>
     );
   };
-  
+
   const fetchLux = async () => {
     try {
-      const response = await fetch(`http://192.168.206.123:3000/lux`);
+      const response = await fetch(`http://10.0.118.54:3000/lux`);
       const data = await response.json();
       setLux(data.lux);
     } catch (error) {
@@ -195,7 +199,7 @@ export default function Light() {
     // clean up function
     return () => clearInterval(intervalId);
   }, []);
-  
+
   const sendAutoLightData = async () => {
     try {
       await axios.post(
@@ -212,30 +216,30 @@ export default function Light() {
     } catch (error) {
       console.error("Error:", error);
     }
-  }
+  };
 
   const LightControl = ({ label, deviceId }) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     return (
-      <TouchableOpacity 
-        style={{ 
+      <TouchableOpacity
+        style={{
           marginVertical: 10,
           borderWidth: 1,
-          borderColor: 'black',
+          borderColor: "black",
           borderRadius: 10,
           padding: 10,
-          backgroundColor: 'white',
-          width: Dimensions.get('window').width * 0.45,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          backgroundColor: "white",
+          width: Dimensions.get("window").width * 0.45,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
         onPress={() => setModalVisible(true)}
       >
         <Text>{label}</Text>
         <CustomSwitch deviceId={deviceId} isAutomatic={isAutomatic} />
-  
+
         <Modal
           animationType="slide"
           transparent={true}
@@ -352,35 +356,41 @@ export default function Light() {
         />
       </View>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <View style={{ width: Dimensions.get('window').width * 0.5 }}>
-          {lights.sort((a, b) => a.device_id.localeCompare(b.device_id)).map((light) => (
-            <LightControl key={light.device_id} label={`Light ${light.device_id}`} deviceId={light.device_id}  />
-          ))}
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View style={{ width: Dimensions.get("window").width * 0.5 }}>
+          {lights
+            .sort((a, b) => a.device_id.localeCompare(b.device_id))
+            .map((light) => (
+              <LightControl
+                key={light.device_id}
+                label={`Light ${light.device_id}`}
+                deviceId={light.device_id}
+              />
+            ))}
         </View>
 
-        <View 
-          style={{ 
-            width: Dimensions.get('window').width * 0.4, // adjust this as needed
+        <View
+          style={{
+            width: Dimensions.get("window").width * 0.4, // adjust this as needed
             height: 200,
             marginVertical: 10,
             borderWidth: 1,
-            borderColor: 'black',
+            borderColor: "black",
             borderRadius: 10,
             padding: 15,
-            backgroundColor: 'white',
+            backgroundColor: "white",
           }}
         >
           <Text style={{ fontSize: 20 }}>{lux}</Text>
-          <Text style={{ fontSize: 15 }}>LUX</Text> 
-          <Entypo 
+          <Text style={{ fontSize: 15 }}>LUX</Text>
+          <Entypo
             name="light-up"
-            size={50} 
+            size={50}
             color="black"
-            style={{ 
-              position: 'absolute', 
-              bottom: 15, 
-              right: 15 
+            style={{
+              position: "absolute",
+              bottom: 15,
+              right: 15,
             }}
           />
         </View>

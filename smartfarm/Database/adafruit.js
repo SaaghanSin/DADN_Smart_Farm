@@ -2,12 +2,12 @@ const axios = require("axios");
 const db_config = require("./db_config");
 const pool = db_config;
 
-const ADAFRUIT_IO_KEY = "aio_Zwjr73HUl6i0OdwRhpDI5hS6TV1Z";
+const ADAFRUIT_IO_KEY = "aio_MIUM06wSINOY8prFX5h2aRXvKJ3q";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
 const TEMP_FEED_NAME = "temp";
 const LED_FEED_NAME = "led";
 const LUX_FEED_NAME = "lux";
-const MOIS_FEED_NAME = "SM";
+const MOIS_FEED_NAME = "sm";
 
 pool
   .connect()
@@ -70,13 +70,14 @@ pool
     const fetchMoisDataAndPrint = async () => {
       try {
         const ledResponse = await axios.get(
-          `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${MOIS_FEED_NAME}/data`,
+          `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${LED_FEED_NAME}/data`,
           {
             headers: {
               "X-AIO-Key": ADAFRUIT_IO_KEY,
             },
           }
         );
+        const moisData = ledResponse.data;
         if (moisData.length > 0) {
           const latestData = moisData[0];
           const moisId = latestData.id;
@@ -87,26 +88,26 @@ pool
             lastMoisId = moisId;
             console.log(`Latest moisture status: ${moisture} at ${recordDate}`);
 
-            // try {
-            //   const latestRecord = await pool.query(
-            //     "SELECT MAX(record_id) AS max_id FROM record"
-            //   );
-            //   const latestRecordId = latestRecord.rows[0].max_id || 0;
-            //   const newRecordId = latestRecordId + 1;
-            //   await pool.query(
-            //     "INSERT INTO record (record_id, record_date, device_id) VALUES ($1, $2, M1)",
-            //     [newRecordId, recordDate]
-            //   );
+            try {
+              const latestRecord = await pool.query(
+                "SELECT MAX(record_id) AS max_id FROM record"
+              );
+              const latestRecordId = latestRecord.rows[0].max_id || 0;
+              const newRecordId = latestRecordId + 1;
+              await pool.query(
+                "INSERT INTO record (record_id, record_date, device_id) VALUES ($1, $2, 'M1')",
+                [newRecordId, recordDate]
+              );
 
-            //   await pool.query(
-            //     "INSERT INTO moisture_record (moisture_record_id, moisture) VALUES ($1, $2)",
-            //     [newRecordId, moisture]
-            //   );
+              await pool.query(
+                "INSERT INTO moisture_record (moisture_record_id, moisture) VALUES ($1, $2)",
+                [newRecordId, moisture]
+              );
 
-            //   console.log(`Inserted new record with ID ${newRecordId}`);
-            // } catch (dbError) {
-            //   console.error("Database error:", dbError);
-            // }
+              console.log(`Inserted new record with ID ${newRecordId}`);
+            } catch (dbError) {
+              console.error("Database error:", dbError);
+            }
           }
         } else {
           console.log("No temp data available from Adafruit");
@@ -284,8 +285,8 @@ pool
     };
 
     // setInterval(fetchDataAndPrint, 10000);
-    fetchTempDataAndPrint();
-    fetchLedDataAndPrint();
+    //fetchTempDataAndPrint();
+    //fetchLedDataAndPrint();
     fetchMoisDataAndPrint();
     // setInterval(fetchLuxDataAndPrint, 11000);
   })

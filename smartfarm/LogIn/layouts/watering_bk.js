@@ -19,7 +19,7 @@ const Watering = () => {
 
   const fetchMoisture = async () => {
     try {
-      const response = await fetch("http://10.0.118.54:3000/latest-moisture");
+      const response = await fetch("http://10.229.71.101:3000/latest-moisture");
       const data = await response.json();
       setSoilMoisture(data["moisture"]);
       if (moistureLimit == "" && baseLimit == "") {
@@ -51,7 +51,7 @@ const Watering = () => {
   const fetchConfiguration = async () => {
     try {
       const response = await fetch(
-        "http://10.0.118.54:3000/moisture-configuration"
+        "http://10.229.71.101:3000/moisture-configuration"
       );
       const data = await response.json();
       toggleManualPump(data["pump_mode"]);
@@ -72,7 +72,7 @@ const Watering = () => {
       return;
     }
     try {
-      await axois.put("http://10.0.118.54:3000/put-moisture-limit", {
+      await axois.put("http://10.229.71.101:3000/put-moisture-limit", {
         baseLimit,
         moistureLimit,
       });
@@ -82,7 +82,7 @@ const Watering = () => {
   };
   const putPumpMode = async () => {
     try {
-      await axois.put("http://10.0.118.54:3000/put-pump-mode", {
+      await axois.put("http://10.229.71.101:3000/put-pump-mode", {
         isPumping,
       });
     } catch (error) {
@@ -91,7 +91,7 @@ const Watering = () => {
   };
   const putMoistureMode = async () => {
     try {
-      await axois.put("http://10.0.118.54:3000/put-moisture-mode", {
+      await axois.put("http://10.229.71.101:3000/put-moisture-mode", {
         isAutomatic,
       });
     } catch (error) {
