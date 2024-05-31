@@ -8,7 +8,7 @@ export default function Noti() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("http://10.0.118.54:3000/activities");
+      const response = await fetch("http://10.229.71.101:3000/activities");
       const data = await response.json();
       const notification = data
         .map((item) => ({

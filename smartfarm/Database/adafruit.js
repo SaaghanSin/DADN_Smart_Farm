@@ -2,7 +2,7 @@ const axios = require("axios");
 const db_config = require("./db_config");
 const pool = db_config;
 
-const ADAFRUIT_IO_KEY = "aio_MIUM06wSINOY8prFX5h2aRXvKJ3q";
+const ADAFRUIT_IO_KEY = "aio_koIt39PWYGyNx2tE7BlVKTLplYX3";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
 const TEMP_FEED_NAME = "temp";
 const LED_FEED_NAME = "led";
@@ -70,7 +70,7 @@ pool
     const fetchMoisDataAndPrint = async () => {
       try {
         const ledResponse = await axios.get(
-          `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${LED_FEED_NAME}/data`,
+          `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${MOIS_FEED_NAME}/data`,
           {
             headers: {
               "X-AIO-Key": ADAFRUIT_IO_KEY,
@@ -117,7 +117,6 @@ pool
       }
       setTimeout(fetchMoisDataAndPrint, 2000);
     };
-
     let lastLedId = "";
     const fetchLedDataAndPrint = async () => {
       try {
@@ -143,6 +142,7 @@ pool
               "INSERT INTO activity (activity_time, acttivity_description, device_id) VALUES ($1, $2, 'L1')",
               [recordDate, newActivityDescription]
             );
+
             console.log(
               `Latest led status: ${newActivityDescription} at ${recordDate}`
             );
@@ -154,7 +154,6 @@ pool
         console.error("Error:", error);
       }
       setTimeout(function () {
-        sendLedData();
         setTimeout(fetchLedDataAndPrint, 2000);
       }, 2000);
     };
@@ -260,7 +259,6 @@ pool
           const lux = latestData.value;
           const recordDate = new Date(latestData.created_at);
 
-          // Get the latest record_id from the record table
           const latestRecord = await pool.query(
             "SELECT MAX(record_id) AS max_id FROM record"
           );
@@ -282,13 +280,17 @@ pool
       } catch (error) {
         console.error("Error:", error);
       }
+      setTimeout(function () {
+        setTimeout(fetchLuxDataAndPrint, 2000);
+      }, 2000);
     };
 
     // setInterval(fetchDataAndPrint, 10000);
     //fetchTempDataAndPrint();
-    //fetchLedDataAndPrint();
+    //fetchLuxDataAndPrint();
     fetchMoisDataAndPrint();
     // setInterval(fetchLuxDataAndPrint, 11000);
+    fetchLedDataAndPrint();
   })
   .catch((error) => {
     console.error("Error connecting to the database:", error);

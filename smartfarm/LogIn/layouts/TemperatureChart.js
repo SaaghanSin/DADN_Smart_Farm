@@ -29,7 +29,7 @@ const TemperatureChart = () => {
 
   const fetchDataForCurrentMonth = async () => {
     const temperature = await fetchData(
-      "http://10.0.118.54:3000/temperature/current-month"
+      "http://10.229.71.101:3000/temperature/current-month"
     );
     const formattedTemperatureData = temperature.map((item) => ({
       day: item.day,
@@ -40,7 +40,7 @@ const TemperatureChart = () => {
 
   const fetchDataForCurrentYear = async () => {
     const temperature = await fetchData(
-      "http://10.0.118.54:3000/temperature/current-year"
+      "http://10.229.71.101:3000/temperature/current-year"
     );
     const formattedTemperatureData = temperature.map((item) => ({
       day: item.month,
@@ -49,9 +49,21 @@ const TemperatureChart = () => {
     setTemperatureData(formattedTemperatureData);
   };
 
+  const fetchDataForCurrentDay = async () => {
+    const temperature = await fetchData(
+      "http://10.229.71.101:3000/temperature/current-day"
+    );
+    const formattedTemperatureData = temperature.map((item) => ({
+      day: item.time ? "" : item.time,
+      temperature: item.temperature,
+    }));
+    setTemperatureData(formattedTemperatureData);
+  };
+
   useEffect(() => {
     fetchDataForCurrentMonth();
     fetchDataForCurrentYear();
+    fetchDataForCurrentDay();
   }, []);
 
   return (
@@ -90,6 +102,19 @@ const TemperatureChart = () => {
               style={styles.button}
             >
               <Text style={styles.buttonText}>Load Data for Current Year</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buttonWrapper}
+            onPress={fetchDataForCurrentDay}
+          >
+            <LinearGradient
+              colors={["#ff7e5f", "#feb47b"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Load Data for Current Day</Text>
             </LinearGradient>
           </TouchableOpacity>
           {temperatureData && (

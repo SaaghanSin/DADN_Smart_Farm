@@ -15,7 +15,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { Button as ElementsButton } from "react-native-elements";
 import { ActivityIndicator } from "react-native";
 import axios from "axios";
-const ADAFRUIT_IO_KEY = "";
+const ADAFRUIT_IO_KEY = "aio_koIt39PWYGyNx2tE7BlVKTLplYX3";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
 
 export default function Light() {
@@ -48,8 +48,10 @@ export default function Light() {
 
   const fetchLights = async () => {
     try {
-      // replace the 10.0.118.54 with your IP address
-      const response = await fetch(`http://10.0.118.54:3000/light/0112233445`);
+      // replace the 10.229.71.101 with your IP address
+      const response = await fetch(
+        `http://10.229.71.101:3000/light/0112233445`
+      );
       const data = await response.json();
       setLights(data);
     } catch (error) {
@@ -69,18 +71,21 @@ export default function Light() {
         return deviceId > acc ? deviceId : acc;
       }, 0);
       const newDeviceId = `L${maxDeviceId + 1}`;
-      // replace the 10.0.118.54 with your IP address
-      const response = await fetch(`http://10.0.118.54:3000/light/0112233445`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          device_id: newDeviceId,
-          device_type: "light",
-          device_location: "BK",
-        }),
-      });
+      // replace the 10.229.71.101 with your IP address
+      const response = await fetch(
+        `http://10.229.71.101:3000/light/0112233445`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            device_id: newDeviceId,
+            device_type: "light",
+            device_location: "BK",
+          }),
+        }
+      );
       if (response.status === 200) {
         setLights([...lights, { device_id: newDeviceId }]);
       }
@@ -95,9 +100,9 @@ export default function Light() {
       return;
     } else {
       try {
-        // replace the 10.0.118.54 with your IP address
+        // replace the 10.229.71.101 with your IP address
         const response = await fetch(
-          `http://10.0.118.54:3000/light/${deviceId}`,
+          `http://10.229.71.101:3000/light/${deviceId}`,
           {
             method: "DELETE",
           }
@@ -119,7 +124,7 @@ export default function Light() {
     const fetchLightStatus = async () => {
       try {
         const response = await fetch(
-          `http://10.0.118.54:3000/activity/${deviceId}`
+          `http://10.229.71.101:3000/activity/${deviceId}`
         );
         const data = await response.json();
         setIsOn(data.acttivity_description === "ON");
@@ -146,7 +151,7 @@ export default function Light() {
       }
       setIsUpdating(true);
       try {
-        const response = await fetch(`http://10.0.118.54:3000/activity`, {
+        const response = await fetch(`http://10.229.71.101:3000/activity`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -185,7 +190,7 @@ export default function Light() {
 
   const fetchLux = async () => {
     try {
-      const response = await fetch(`http://10.0.118.54:3000/lux`);
+      const response = await fetch(`http://10.229.71.101:3000/lux`);
       const data = await response.json();
       setLux(data.lux);
     } catch (error) {

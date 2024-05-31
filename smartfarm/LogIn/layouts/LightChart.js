@@ -29,7 +29,7 @@ const LightChart = () => {
 
   const fetchDataForCurrentMonth = async () => {
     const light = await fetchData(
-      "http://10.0.118.54:3000/lights/current-month"
+      "http://10.229.71.101:3000/lights/current-month"
     );
     const formattedLightData = light.map((item) => ({
       day: item.day,
@@ -40,17 +40,28 @@ const LightChart = () => {
 
   const fetchDataForCurrentYear = async () => {
     const light = await fetchData(
-      "http://10.0.118.54:3000/lights/current-year"
+      "http://10.229.71.101:3000/lights/current-year"
     );
     const formattedLightData = light.map((item) => ({
-      month: item.month,
+      day: item.month,
       lux: item.average_light,
     }));
     setLightData(formattedLightData);
   };
-
+  const fetchDataForCurrentDay = async () => {
+    const light = await fetchData(
+      "http://10.229.71.101:3000/lights/current-day"
+    );
+    const formattedLightData = light.map((item) => ({
+      day: item.time ? "" : item.time,
+      lux: item.light,
+    }));
+    setLightData(formattedLightData);
+  };
   useEffect(() => {
     fetchDataForCurrentMonth();
+    fetchDataForCurrentYear();
+    fetchDataForCurrentDay();
   }, []);
 
   return (
@@ -91,10 +102,23 @@ const LightChart = () => {
               <Text style={styles.buttonText}>Load Data for Current Year</Text>
             </LinearGradient>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buttonWrapper}
+            onPress={fetchDataForCurrentDay}
+          >
+            <LinearGradient
+              colors={["#f7971e", "#ffd200"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Load Data for Current Day</Text>
+            </LinearGradient>
+          </TouchableOpacity>
           {lightData && (
             <LineChart
               data={{
-                labels: lightData.map((item) => item.day || item.month),
+                labels: lightData.map((item) => item.day),
                 datasets: [
                   {
                     data: lightData.map((item) => item.lux),

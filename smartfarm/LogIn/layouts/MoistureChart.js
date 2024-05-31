@@ -29,7 +29,7 @@ const MoistureChart = () => {
 
   const fetchDataForCurrentMonth = async () => {
     const moisture = await fetchData(
-      "http://10.0.118.54:3000/moisture/current-month"
+      "http://10.229.71.101:3000/moisture/current-month"
     );
     const formattedMoistureData = moisture.map((item) => ({
       day: item.day,
@@ -40,17 +40,28 @@ const MoistureChart = () => {
 
   const fetchDataForCurrentYear = async () => {
     const moisture = await fetchData(
-      "http://10.0.118.54:3000/moisture/current-year"
+      "http://10.229.71.101:3000/moisture/current-year"
     );
     const formattedMoistureData = moisture.map((item) => ({
-      month: item.month,
+      day: item.month,
       moisture: item.average_moisture,
     }));
     setMoistureData(formattedMoistureData);
   };
-
+  const fetchDataForCurrentDay = async () => {
+    const moisture = await fetchData(
+      "http://10.229.71.101:3000/moisture/current-day"
+    );
+    const formattedMoistureData = moisture.map((item) => ({
+      day: item.time ? "" : item.time,
+      moisture: item.moisture,
+    }));
+    setMoistureData(formattedMoistureData);
+  };
   useEffect(() => {
     fetchDataForCurrentMonth();
+    fetchDataForCurrentYear();
+    fetchDataForCurrentDay();
   }, []);
 
   return (
@@ -91,10 +102,23 @@ const MoistureChart = () => {
               <Text style={styles.buttonText}>Load Data for Current Year</Text>
             </LinearGradient>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buttonWrapper}
+            onPress={fetchDataForCurrentDay}
+          >
+            <LinearGradient
+              colors={["#00c6ff", "#0072ff"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Load Data for Current Day</Text>
+            </LinearGradient>
+          </TouchableOpacity>
           {moistureData && (
             <LineChart
               data={{
-                labels: moistureData.map((item) => item.day || item.month),
+                labels: moistureData.map((item) => item.day),
                 datasets: [
                   {
                     data: moistureData.map((item) => item.moisture),

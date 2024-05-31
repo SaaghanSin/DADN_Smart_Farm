@@ -15,13 +15,9 @@ export default function Homepage({ setContent }) {
   const [temperatureData, setTemperatureData] = useState(0.0);
   const [lightData, setLightData] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
-<<<<<<< Updated upstream
-  const [isAutomatic, setIsAutomatic] = useState(false);
-=======
   const [upperLimit, setUpperLimit] = useState(0);
   const [baseLimit, setBaseLimit] = useState(0);
-
->>>>>>> Stashed changes
+  const [isAutomatic, setIsAutomatic] = useState(false);
   const handleWater = () => {
     onPress.navigate("Watering");
   };
@@ -41,23 +37,14 @@ export default function Homepage({ setContent }) {
   useEffect(() => {
     fetchData();
     fetchTaskCount();
-<<<<<<< Updated upstream
-    fetchLightData();
-    fetchAutoLightData();
-=======
     fetchBaseLimit();
     fetchUpperLimit();
->>>>>>> Stashed changes
   }, []);
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
-<<<<<<< Updated upstream
-        "http://192.168.1.224:3000/latest-temperature"
-=======
-        "http://10.0.118.54:3000/latest-temperature"
->>>>>>> Stashed changes
+        "http://10.229.71.101:3000/latest-temperature"
       );
       const temperature = response.data.temperature;
       setTemperatureData(temperature);
@@ -73,51 +60,16 @@ export default function Homepage({ setContent }) {
 
   const fetchTaskCount = async () => {
     try {
-<<<<<<< Updated upstream
-      const response = await axios.get("http://192.168.1.224:3000/task-count");
-=======
-      const response = await axios.get("http://10.0.118.54:3000/task-count");
->>>>>>> Stashed changes
+      const response = await axios.get("http://10.229.71.101:3000/task-count");
       setTaskCount(response.data.total_reminders);
     } catch (error) {
       console.error("Error fetching task count:", error);
     }
   };
 
-<<<<<<< Updated upstream
-  const fetchLightData = async () => {
-    try {
-      const response = await axios.get("http://192.168.1.224:3000/activity/L1");
-      const data = response.data;
-      setLightData(data.acttivity_description === "ON");
-    } catch (error) {
-      console.error("Error fetching light data:", error);
-    }
-  };
-
-  const fetchAutoLightData = async () => {
-    try {
-      const response = await axios.get(
-        `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/auto-light/data`,
-        {
-          headers: {
-            "X-AIO-Key": ADAFRUIT_IO_KEY,
-          },
-        }
-      );
-      const data = response.data;
-      if (data.length > 0) {
-        setIsAutomatic(data[0].value === "1");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-  
-=======
   const fetchUpperLimit = async () => {
     try {
-      const response = await axios.get("http://10.0.118.54:3000/upper-limit");
+      const response = await axios.get("http://10.229.71.101:3000/upper-limit");
       setUpperLimit(response.data.upper_limit);
     } catch (error) {
       console.error("Error fetching upper limit:", error);
@@ -126,7 +78,7 @@ export default function Homepage({ setContent }) {
 
   const fetchBaseLimit = async () => {
     try {
-      const response = await axios.get("http://10.0.118.54:3000/base-limit");
+      const response = await axios.get("http://10.229.71.101:3000/base-limit");
       setBaseLimit(response.data.base_limit);
     } catch (error) {
       console.error("Error fetching base limit:", error);
@@ -135,7 +87,7 @@ export default function Homepage({ setContent }) {
 
   const logActivity = async (description) => {
     try {
-      await axios.post("http://10.0.118.54:3000/activity", {
+      await axios.post("http://10.229.71.101:3000/activity", {
         acttivity_description: "Temperature out of range",
         device_id: 1,
       });
@@ -145,7 +97,6 @@ export default function Homepage({ setContent }) {
     }
   };
 
->>>>>>> Stashed changes
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleWater}>
@@ -173,9 +124,11 @@ export default function Homepage({ setContent }) {
           <View style={styles.buttonContent}>
             <Entypo name="light-up" size={30} color="#000" />
             <Text style={[styles.buttonText, { color: "#000" }]}>
-            Light: {lightData ? "On" : "Off"}
+              Light: {lightData ? "On" : "Off"}
             </Text>
-            <Text style={[styles.buttonText, { color: "#000" }]}>{isAutomatic ? "Automatic" : "Manual"}</Text>
+            <Text style={[styles.buttonText, { color: "#000" }]}>
+              {isAutomatic ? "Automatic" : "Manual"}
+            </Text>
           </View>
         </LinearGradient>
       </TouchableOpacity>
