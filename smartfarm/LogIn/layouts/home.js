@@ -14,10 +14,13 @@ export default function Homepage({ setContent }) {
   const onPress = useNavigation();
   const [temperatureData, setTemperatureData] = useState(0.0);
   const [lightData, setLightData] = useState(0);
+  const [moistureData, setMoistureData] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
   const [upperLimit, setUpperLimit] = useState(0);
   const [baseLimit, setBaseLimit] = useState(0);
   const [isAutomatic, setIsAutomatic] = useState(false);
+  const [upperMoisLimit, setUpperMoisLimit] = useState(0);
+  const [baseMoisLimit, setBaseMoisLimit] = useState(0);
   const handleWater = () => {
     onPress.navigate("Watering");
   };
@@ -36,9 +39,11 @@ export default function Homepage({ setContent }) {
 
   useEffect(() => {
     fetchData();
+    fetchMoisData();
     fetchTaskCount();
     fetchBaseLimit();
     fetchUpperLimit();
+    fetchMoistureLimit();
   }, []);
 
   const fetchData = async () => {
@@ -57,7 +62,20 @@ export default function Homepage({ setContent }) {
       console.error("Error fetching data:", error);
     }
   };
-
+  const fetchMoisData = async () => {
+    try {
+      const response = await axios.get(
+        "http://10.229.71.101:3000/latest-moisture"
+      );
+      const moisture = response.data.moisture;
+      setMoistureData(moisture);
+      if (moisture < baseLimit || moisture > upperLimit) {
+        logMoisActivity(`Moisture out of range: ${moisture}°C`);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
   const fetchTaskCount = async () => {
     try {
       const response = await axios.get("http://10.229.71.101:3000/task-count");
@@ -84,7 +102,18 @@ export default function Homepage({ setContent }) {
       console.error("Error fetching base limit:", error);
     }
   };
-
+  const fetchMoistureLimit = async () => {
+    try {
+      const response = await fetch(
+        "http://10.229.71.101:3000/moisture-configuration"
+      );
+      const data = await response.json();
+      setBaseMoisLimit(data["moisture_base_limit"]);
+      setUpperMoisLimit(data["moisture_upper_limit"]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const logActivity = async (description) => {
     try {
       await axios.post("http://10.229.71.101:3000/activity", {
@@ -96,7 +125,17 @@ export default function Homepage({ setContent }) {
       console.error("Error logging activity:", error);
     }
   };
-
+  const logMoisActivity = async (description) => {
+    try {
+      await axios.post("http://10.229.71.101:3000/activity", {
+        acttivity_description: "Moisture out of range",
+        device_id: 1,
+      });
+      console.log("Activity logged successfully.");
+    } catch (error) {
+      console.error("Error logging activity:", error);
+    }
+  };
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleWater}>
@@ -109,6 +148,14 @@ export default function Homepage({ setContent }) {
           <View style={styles.buttonContent}>
             <Ionicons name="water-outline" size={30} color="#fff" />
             <Text style={styles.buttonText}>Pump: Off</Text>
+            {/* {moistureData < baseMoisLimit || moistureData > upperMoisLimit ? (
+              <MaterialCommunityIcons
+                name="alert"
+                size={30}
+                color="#000000"
+                style={styles.warningIcon}
+              />
+            ) : null} */}
             <Text style={styles.buttonText}>Automatic</Text>
           </View>
         </LinearGradient>
@@ -142,7 +189,7 @@ export default function Homepage({ setContent }) {
         >
           <View style={styles.buttonContent}>
             <MaterialCommunityIcons name="thermometer" size={30} color="#fff" />
-            <Text style={styles.buttonText}>{temperatureData}°C: Good</Text>
+            <Text style={styles.buttonText}>{temperatureData}°C</Text>
             {temperatureData < baseLimit || temperatureData > upperLimit ? (
               <MaterialCommunityIcons
                 name="alert"

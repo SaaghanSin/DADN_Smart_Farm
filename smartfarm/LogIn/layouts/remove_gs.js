@@ -10,17 +10,14 @@ import {
   TextInput,
 } from "react-native";
 import axios from "axios";
-
 const ADAFRUIT_IO_KEY = "aio_Esmo92B3PDgbOjpsDfLO12LQBywl";
 const ADAFRUIT_IO_USERNAME = "duongwt16";
-
 const Watering = () => {
   const [soilMoisture, setSoilMoisture] = useState(36);
   const [isPumping, toggleManualPump] = useState(false);
   const [isAutomatic, togglePumpMode] = useState(false);
   const [moistureLimit, setMoistureLimit] = useState("");
   const [baseLimit, setBaseLimit] = useState("");
-
   const fetchAutoMoisData = async () => {
     try {
       const response = await axios.get(
@@ -39,26 +36,6 @@ const Watering = () => {
       console.error("Error:", error);
     }
   };
-
-  const fetchManualMoisData = async () => {
-    try {
-      const response = await axios.get(
-        `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/pump/data`,
-        {
-          headers: {
-            "X-AIO-Key": ADAFRUIT_IO_KEY,
-          },
-        }
-      );
-      const data = response.data;
-      if (data.length > 0) {
-        toggleManualPump(data[0].value === "1");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   const fetchMoisture = async () => {
     try {
       const response = await fetch("http://10.229.71.101:3000/latest-moisture");
@@ -68,7 +45,6 @@ const Watering = () => {
       console.error(error);
     }
   };
-
   const fetchConfiguration = async () => {
     try {
       const response = await fetch(
@@ -101,7 +77,6 @@ const Watering = () => {
       console.error("Error updating moisture range:", error);
     }
   };
-
   const putPumpMode = async () => {
     try {
       await axios.put("http://10.229.71.101:3000/put-pump-mode", {
@@ -111,7 +86,6 @@ const Watering = () => {
       console.log("Error toggling pump mode", error);
     }
   };
-
   const putMoistureMode = async () => {
     try {
       await axios.put("http://10.229.71.101:3000/put-moisture-mode", {
@@ -121,7 +95,6 @@ const Watering = () => {
       console.log("Error toggling moisture mode", error);
     }
   };
-
   const sendAutoPumpData = async () => {
     try {
       await axios.post(
@@ -139,36 +112,31 @@ const Watering = () => {
       console.error("Error:", error);
     }
   };
-  const sendManualPumpData = async () => {
-    try {
-      await axios.post(
-        `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/pump/data`,
-        {
-          value: isPumping ? 0 : 1,
-        },
-        {
-          headers: {
-            "X-AIO-Key": ADAFRUIT_IO_KEY,
-          },
-        }
-      );
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   useEffect(() => {
     fetchMoisture();
     fetchAutoMoisData();
-    fetchManualMoisData();
     const intervalId = setInterval(fetchMoisture, 1000);
     return () => clearInterval(intervalId);
-  }, []);
-
+  });
   useEffect(() => {
     fetchConfiguration();
-  }, []);
+  });
 
+  const GlobalState = {
+    soilMoisture,
+    setSoilMoisture,
+    isPumping,
+    toggleManualPump,
+    isAutomatic,
+    togglePumpMode,
+    moistureLimit,
+    setMoistureLimit,
+    baseLimit,
+    setBaseLimit,
+    putMoistureLimit,
+    putPumpMode,
+    putMoistureMode,
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.title}>
@@ -179,38 +147,22 @@ const Watering = () => {
         />
       </View>
       <View style={styles.panelContainer}>
-        <LeftPanel
-          soilMoisture={soilMoisture}
-          isPumping={isPumping}
-          toggleManualPump={toggleManualPump}
-          isAutomatic={isAutomatic}
-          putPumpMode={putPumpMode}
-          sendManualPumpData={sendManualPumpData}
-        />
-        <RightPanel
-          isAutomatic={isAutomatic}
-          togglePumpMode={togglePumpMode}
-          moistureLimit={moistureLimit}
-          setMoistureLimit={setMoistureLimit}
-          baseLimit={baseLimit}
-          setBaseLimit={setBaseLimit}
-          putMoistureLimit={putMoistureLimit}
-          putMoistureMode={putMoistureMode}
-          sendAutoPumpData={sendAutoPumpData}
-        />
+        <LeftPanel GlobalState={GlobalState} />
+        <RightPanel GlobalState={GlobalState} />
       </View>
     </SafeAreaView>
   );
 };
-
-const LeftPanel = ({
-  soilMoisture,
-  isPumping,
-  toggleManualPump,
-  isAutomatic,
-  putPumpMode,
-  sendManualPumpData,
-}) => {
+const LeftPanel = ({ GlobalState }) => {
+  const {
+    soilMoisture,
+    setSoilMoisture,
+    isPumping,
+    toggleManualPump,
+    isAutomatic,
+    togglePumpMode,
+    putPumpMode,
+  } = GlobalState;
   return (
     <View style={styles.leftPanel}>
       <View style={styles.moistureDisplay}>
@@ -236,7 +188,6 @@ const LeftPanel = ({
           onValueChange={() => {
             toggleManualPump(!isPumping);
             putPumpMode();
-            sendManualPumpData();
           }}
           disabled={isAutomatic}
           thumbColor={isPumping ? "white" : "black"}
@@ -247,18 +198,17 @@ const LeftPanel = ({
     </View>
   );
 };
-
-const RightPanel = ({
-  isAutomatic,
-  togglePumpMode,
-  moistureLimit,
-  setMoistureLimit,
-  baseLimit,
-  setBaseLimit,
-  putMoistureLimit,
-  putMoistureMode,
-  sendAutoPumpData,
-}) => {
+const RightPanel = ({ GlobalState }) => {
+  const {
+    isAutomatic,
+    togglePumpMode,
+    moistureLimit,
+    setMoistureLimit,
+    baseLimit,
+    setBaseLimit,
+    putMoistureLimit,
+    putMoistureMode,
+  } = GlobalState;
   return (
     <View style={styles.rightPanel}>
       <View style={styles.pumpMode}>
@@ -308,7 +258,7 @@ const RightPanel = ({
   );
 };
 
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   container: {},
   title: {
     flexDirection: "row",
